@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0C0E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png" type="image/png">
+<meta name="apple-mobile-web-app-title" content="Timgo">
+<meta name="description" content="Split a session into timed segments. Each one beeps and hands off to the next.">
+<title>Timgo — segmented timer</title>
+<style>
+  :root{
+    --ink:#0B0C0E; --panel:#121417; --line:#22262B; --line-2:#2E343B;
+    --bone:#EDE8DF; --mute:#7C848E; --ember:#FF5A2B;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #16191E 0%, var(--ink) 55%) fixed,
+      var(--ink);
+    color:var(--bone);
+    font:400 16px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 16px);
+    display:flex;justify-content:center;
+  }
+  .wrap{width:100%;max-width:1040px;padding:24px 0 8px;
+    display:grid;gap:32px;align-content:start}
+  @media(min-width:900px){.wrap{grid-template-columns:1fr 1fr;align-items:center;gap:56px}}
+
+  /* ---- masthead ---- */
+  .mast{display:flex;align-items:baseline;gap:12px}
+  .mast h1{margin:0;font-size:15px;font-weight:600;letter-spacing:.34em;text-transform:uppercase}
+  .mast span{font-size:12px;color:var(--mute);letter-spacing:.06em}
+
+  /* ---- dial ---- */
+  .dial{position:relative;display:grid;place-items:center;justify-self:center}
+  .dial svg{display:block;width:min(78vw,360px);height:auto}
+  .glow{position:absolute;inset:14%;border-radius:50%;filter:blur(46px);opacity:.30;
+    transition:background .6s ease;pointer-events:none}
+  .face{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:2px}
+  .eyebrow{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--mute)}
+  .clock{font-size:clamp(52px,15vw,72px);font-weight:200;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;line-height:1;margin:10px 0 8px}
+  .sub{font-size:11.5px;color:var(--mute);letter-spacing:.08em}
+  .totalbar{margin-top:6px;font-size:10.5px;color:var(--mute);letter-spacing:.14em}
+
+  /* ---- controls ---- */
+  .ctrl{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+  button{font:inherit;font-size:14px;cursor:pointer;border-radius:999px;
+    display:inline-flex;align-items:center;gap:8px;transition:.16s}
+  .primary{background:var(--ember);color:#140A05;font-weight:600;border:0;padding:13px 30px}
+  .primary:hover{filter:brightness(1.1)}
+  .ghost{background:transparent;color:var(--bone);border:1px solid var(--line-2);padding:12px 20px}
+  .ghost:hover{background:var(--panel)}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  button:focus-visible{outline:2px solid var(--ember);outline-offset:3px}
+
+  /* ---- panel ---- */
+  .row{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+  label{font-size:12.5px;color:var(--mute);letter-spacing:.06em}
+  input{font:inherit;background:var(--panel);color:var(--bone);
+    border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+    font-variant-numeric:tabular-nums}
+  input:focus{outline:0;border-color:var(--ember)}
+  input[type=number]{width:74px;text-align:right;-moz-appearance:textfield}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+  .tag{font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+  .ok{color:#6E9C4A} .over{color:var(--ember)} .idle{color:var(--mute)}
+
+  .seg{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-top:8px;
+    border:1px solid var(--line);border-radius:14px;background:#0F1114;transition:.2s}
+  .seg[data-live]{border-color:var(--ember);background:var(--panel)}
+  .seg[data-past]{opacity:.42}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .seg input[type=text]{flex:1;min-width:0;background:transparent;border:0;padding:6px 0;font-size:14px}
+  .seg .unit{font-size:11px;color:var(--mute)}
+  .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0}
+  .kill:hover{color:var(--ember)}
+  .add{background:0;border:1px dashed var(--line-2);color:var(--mute);
+    width:100%;justify-content:center;padding:11px;margin-top:10px}
+  .add:hover{color:var(--bone);border-color:var(--bone)}
+  .note{margin-top:18px;font-size:11.5px;color:var(--mute);line-height:1.7}
+  kbd{background:var(--panel);border:1px solid var(--line);border-radius:5px;
+    padding:1px 5px;font:inherit;font-size:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- DIAL -->
+  <section>
+    <div class="dial">
+      <div class="glow" id="glow"></div>
+      <svg viewBox="0 0 360 360" aria-hidden="true">
+        <defs>
+          <filter id="soft"><feGaussianBlur stdDeviation="3.2"/></filter>
+        </defs>
+        <g id="ticks"></g>
+        <!-- outer chain ring: the whole session at a glance -->
+        <g id="chain" fill="none" stroke-linecap="butt"></g>
+        <!-- inner progress ring: the active segment -->
+        <circle cx="180" cy="180" r="126" fill="none" stroke="#1A1D22" stroke-width="10"/>
+        <circle id="prog" cx="180" cy="180" r="126" fill="none" stroke="var(--ember)"
+                stroke-width="10" stroke-linecap="round" transform="rotate(-90 180 180)"/>
+        <g id="hand" filter="url(#soft)">
+          <line x1="180" y1="180" x2="180" y2="46" stroke="var(--ember)" stroke-width="1.5" opacity=".5"/>
+        </g>
+      </svg>
+      <div class="face">
+        <div class="eyebrow" id="eyebrow">Branch 1</div>
+        <div class="clock" id="clock">20:00</div>
+        <div class="sub" id="sub">Segment 1 of 3</div>
+        <div class="totalbar" id="totalbar">60:00 SESSION REMAINING</div>
+      </div>
+    </div>
+
+    <div class="ctrl">
+      <button class="primary" id="go">▶ Start</button>
+      <button class="ghost" id="skip" disabled>⏭ Skip</button>
+      <button class="ghost" id="reset">↺ Reset</button>
+    </div>
+  </section>
+
+  <!-- PANEL -->
+  <section>
+    <div class="mast"><h1>Timgo</h1><span>segmented timer</span></div>
+
+    <div class="row">
+      <label for="total">Session</label>
+      <input id="total" type="number" min="1" value="60">
+      <span class="unit" style="font-size:11px;color:var(--mute)">min</span>
+      <span class="tag idle" id="alloc"></span>
+    </div>
+
+    <div id="list"></div>
+    <button class="add" id="add">+ Add segment</button>
+
+    <p class="note">
+      Each segment beeps and hands off to the next; three beeps end the session.<br>
+      <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>R</kbd> reset.
+      Screen stays awake while running.
+    </p>
+  </section>
+</div>
+
+<script>
+const HUES = ["#FF5A2B","#2F7D6E","#C9A227","#4A5FA5","#9A4C7E","#5B7B3A"];
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,"0");
+const fmt = s => `${pad(Math.floor(s/60))}:${pad(s%60)}`;
+
+let segs, total, active = 0, left = 0, running = false, done = false, tick = null, lock = null, uid = 0;
+
+/* ---------- persistence (silently no-ops in sandboxed previews) ---------- */
+const save = () => { try{ localStorage.setItem("timgo", JSON.stringify({total,segs})) }catch{} };
+const load = () => {
+  try{ const d = JSON.parse(localStorage.getItem("timgo")); if(d?.segs?.length) return d }catch{}
+  return { total:60, segs:[{name:"Branch 1",min:20},{name:"Branch 2",min:30},{name:"Branch 3",min:10}] };
+};
+const init = load(); total = init.total; segs = init.segs.map(s => ({...s, id:++uid}));
+
+/* ---------- audio ---------- */
+let ac;
+function beep(times = 1, freq = 880){
+  try{
+    ac ||= new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === "suspended") ac.resume();
+    for(let i=0;i<times;i++){
+      const t = ac.currentTime + i*0.34;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(freq,t);
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(.32,t+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,t+.28);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t+.32);
+    }
+  }catch{}
+  if(navigator.vibrate) navigator.vibrate(times>1 ? [180,90,180,90,180] : 200);
+}
+
+/* ---------- wake lock ---------- */
+async function wake(on){
+  try{
+    if(on && !lock && "wakeLock" in navigator) lock = await navigator.wakeLock.request("screen");
+    if(!on && lock){ lock.release(); lock = null; }
+  }catch{}
+}
+document.addEventListener("visibilitychange", () => { if(document.visibilityState==="visible" && running) wake(true) });
+
+/* ---------- static dial furniture ---------- */
+(function ticks(){
+  let g = "";
+  for(let i=0;i<60;i++){
+    const a = (i/60)*2*Math.PI - Math.PI/2, big = i%5===0;
+    const r1 = big ? 141 : 145, r2 = 150;
+    g += `<line x1="${180+Math.cos(a)*r1}" y1="${180+Math.sin(a)*r1}"
+                x2="${180+Math.cos(a)*r2}" y2="${180+Math.sin(a)*r2}"
+                stroke="${big?"#3A4048":"#23272C"}" stroke-width="${big?1.6:1}"/>`;
+  }
+  $("ticks").innerHTML = g;
+})();
+
+/* ---------- the chain ring: whole session, one glance ---------- */
+const arc = (r,a0,a1) => {
+  const p = a => [180+r*Math.cos(a-Math.PI/2), 180+r*Math.sin(a-Math.PI/2)];
+  const [x0,y0] = p(a0), [x1,y1] = p(a1);
+  return `M${x0} ${y0}A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${x1} ${y1}`;
+};
+function drawChain(){
+  const sum = segs.reduce((a,s)=>a+Math.max(+s.min||0,0),0) || 1;
+  let a = 0, g = "";
+  segs.forEach((s,i) => {
+    const span = (Math.max(+s.min||0,0)/sum) * 2*Math.PI;
+    const gap  = 0.022;
+    const past = i < active || done, live = i === active && !done;
+    g += `<path d="${arc(158, a+gap/2, a+span-gap/2)}" stroke="${HUES[i%6]}"
+           stroke-width="${live?7:past?5:2.5}" opacity="${live?1:past?.5:.28}"/>`;
+    a += span;
+  });
+  $("chain").innerHTML = g;
+}
+
+/* ---------- render ---------- */
+function render(){
+  const allocated = segs.reduce((a,s)=>a+(+s.min||0),0), rem = total - allocated;
+  const tag = $("alloc");
+  tag.className = "tag " + (rem===0?"ok":rem<0?"over":"idle");
+  tag.textContent = rem===0 ? "fully allocated" : rem>0 ? `${rem} min unallocated` : `${-rem} min over`;
+
+  $("list").innerHTML = segs.map((s,i)=>`
+    <div class="seg" ${!done&&i===active&&running?"data-live":""} ${i<active||done?"data-past":""}>
+      <span class="dot" style="background:${HUES[i%6]}"></span>
+      <input type="text" value="${s.name.replace(/"/g,"&quot;")}" data-n="${s.id}">
+      <input type="number" min="1" value="${s.min}" data-m="${s.id}">
+      <span class="unit">min</span>
+      <button class="kill" data-x="${s.id}" aria-label="Remove ${s.name}">✕</button>
+    </div>`).join("");
+
+  const cur = segs[active] || {name:"—",min:0};
+  const segSec = Math.max((+cur.min||0)*60, 1);
+  const pct = done ? 1 : (segSec - left)/segSec;
+  const C = 2*Math.PI*126;
+  $("prog").setAttribute("stroke-dasharray", C);
+  $("prog").setAttribute("stroke-dashoffset", C - pct*C);
+  $("prog").setAttribute("stroke", HUES[active%6]);
+  $("hand").setAttribute("transform", `rotate(${pct*360} 180 180)`);
+  $("hand").style.opacity = running ? 1 : .25;
+  $("glow").style.background = HUES[active%6];
+
+  $("eyebrow").textContent = done ? "Complete" : cur.name;
+  $("clock").textContent   = fmt(left);
+  $("sub").textContent     = done ? "All segments finished" : `Segment ${active+1} of ${segs.length}`;
+
+  const ahead = segs.slice(active+1).reduce((a,s)=>a+(+s.min||0)*60,0);
+  $("totalbar").textContent = done ? "SESSION COMPLETE" : `${fmt(left+ahead)} SESSION REMAINING`;
+
+  $("go").textContent  = running ? "❚❚ Pause" : done ? "▶ Start" : "▶ Start";
+  $("go").disabled     = done;
+  $("skip").disabled   = !running;
+  drawChain();
+}
+
+/* ---------- engine ---------- */
+function stop(){ clearInterval(tick); tick=null; running=false; wake(false); }
+function advance(){
+  if(active+1 >= segs.length){ beep(3,720); stop(); done=true; left=0; render(); return; }
+  beep(1); active++; left = (+segs[active].min||1)*60; render();
+}
+function toggle(){
+  if(done) return;
+  if(running){ stop(); render(); return; }
+  beep(0); running = true; wake(true);
+  tick = setInterval(()=>{ left--; if(left<=0){ advance(); if(!running) return; } render(); },1000);
+  render();
+}
+function reset(){ stop(); done=false; active=0; left=(+segs[0]?.min||0)*60; render(); }
+
+/* ---------- events ---------- */
+$("go").onclick = toggle;
+$("skip").onclick = () => running && advance();
+$("reset").onclick = reset;
+$("total").oninput = e => { total = +e.target.value||0; save(); render(); };
+$("add").onclick = () => {
+  const rem = total - segs.reduce((a,s)=>a+(+s.min||0),0);
+  segs.push({id:++uid, name:`Branch ${segs.length+1}`, min: rem>0?rem:5});
+  save(); reset();
+};
+$("list").addEventListener("input", e => {
+  const n = e.target.dataset.n, m = e.target.dataset.m;
+  if(n) segs.find(s=>s.id==n).name = e.target.value;
+  if(m){ segs.find(s=>s.id==m).min = +e.target.value||0; if(!running) reset(); }
+  save(); if(n) drawChain();
+});
+$("list").addEventListener("click", e => {
+  const x = e.target.closest("[data-x]");
+  if(x && segs.length>1){ segs = segs.filter(s=>s.id!=x.dataset.x); save(); reset(); }
+});
+addEventListener("keydown", e => {
+  if(e.target.tagName === "INPUT") return;
+  if(e.code==="Space"){ e.preventDefault(); toggle(); }
+  if(e.key==="ArrowRight" && running) advance();
+  if(e.key.toLowerCase()==="r") reset();
+});
+
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+reset();
+</script>
+</body>
+</html>
