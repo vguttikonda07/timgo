@@ -18,7 +18,7 @@
     --bone:#EDE8DF; --mute:#7C848E; --ember:#FF5A2B;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;height:100%}
+  html,body{margin:0;height:100%;overflow-x:hidden}   /* no horizontal page scroll, ever */
   body{
     background:
       radial-gradient(120% 80% at 50% -10%, #16191E 0%, var(--ink) 55%) fixed,
@@ -29,7 +29,8 @@
     display:flex;justify-content:center;
   }
   .wrap{width:100%;max-width:1040px;padding:24px 0 8px;
-    display:grid;gap:32px;align-content:start}
+    display:grid;gap:32px;align-content:start;min-width:0}
+  .wrap > section{min-width:0}   /* without this, a wide child forces the grid open */
   @media(min-width:900px){.wrap{grid-template-columns:1fr 1fr;align-items:center;gap:56px}}
 
   /* ---- masthead ---- */
@@ -54,7 +55,8 @@
   .totalbar{margin-top:6px;font-size:10.5px;color:var(--mute);letter-spacing:.14em}
 
   /* ---- controls ---- */
-  .ctrl{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+  .ctrl{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap;
+    padding:0 4px}
   button{font:inherit;font-size:14px;cursor:pointer;border-radius:999px;
     display:inline-flex;align-items:center;gap:8px;transition:.16s}
   .primary{background:var(--ember);color:#140A05;font-weight:600;border:0;padding:13px 30px}
@@ -85,29 +87,53 @@
   .seg[data-past]{opacity:.42}
   .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
   .seg input[type=text]{flex:1;min-width:0;background:transparent;border:0;padding:6px 0;font-size:14px}
-  .seg input.dur{flex:0 0 74px;text-align:right;font-variant-numeric:tabular-nums;
+  .durbox{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+  .seg input.dur{flex:0 0 54px;width:54px;text-align:right;font-variant-numeric:tabular-nums;
     background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;
     font-size:13px;transition:border-color .14s}
+  .seg input.dur.free{flex-basis:82px;width:82px}   /* 1:01:01 needs the room */
   .seg input.dur:focus{outline:0;border-color:var(--ember)}
   .seg input.dur.bad{border-color:var(--ember);color:var(--ember)}
+  .units{display:flex;background:var(--ink);border:1px solid var(--line);
+    border-radius:8px;overflow:hidden;flex:0 0 auto}
+  .u{background:0;border:0;color:var(--mute);font:inherit;font-size:12px;
+    padding:8px 0;line-height:1;width:29px;cursor:pointer;transition:.12s}
+  .u:hover{color:var(--bone)}
+  .u[data-on]{background:var(--ember);color:#140A05;font-weight:600}
+  .u:focus-visible{outline:2px solid var(--ember);outline-offset:-2px}
   .seg .unit{font-size:11px;color:var(--mute)}
   .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0}
   .kill:hover{color:var(--ember)}
   .add{background:0;border:1px dashed var(--line-2);color:var(--mute);
     width:100%;justify-content:center;padding:11px;margin-top:10px}
   .add:hover{color:var(--bone);border-color:var(--bone)}
+  .soundrow{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+  .soundrow label{flex:0 0 auto}
+  #soundsel{flex:1;min-width:120px;max-width:180px;background:var(--panel);color:var(--bone);
+    border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;font-size:13.5px;
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),
+                     linear-gradient(135deg,var(--mute) 50%,transparent 50%);
+    background-position:calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+    background-size:5px 5px, 5px 5px; background-repeat:no-repeat}
+  #soundsel:focus{outline:0;border-color:var(--ember)}
+
   .note{margin-top:18px;font-size:11.5px;color:var(--mute);line-height:1.7}
   kbd{background:var(--panel);border:1px solid var(--line);border-radius:5px;
     padding:1px 5px;font:inherit;font-size:11px}
 
   /* ---- presets ---- */
-  .presets{margin-top:22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
-  .phead{display:flex;align-items:center;justify-content:space-between}
+  .presets{margin-top:22px;padding-bottom:20px;border-bottom:1px solid var(--line);min-width:0}
+  .phead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .linky{background:0;border:0;color:var(--ember);font-size:12.5px;padding:4px 0;letter-spacing:.02em}
   .linky:hover{text-decoration:underline}
   .linky:disabled{color:var(--mute);text-decoration:none}
-  .chips{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:4px;
+  .chips{display:flex;gap:8px;margin-top:12px;padding-bottom:4px;
+    overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    min-width:0;max-width:100%;
     scrollbar-width:none}
+  .chip{scroll-snap-align:start}
   .chips::-webkit-scrollbar{display:none}
   .chips:empty{display:none}
   .chip{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:9px;
@@ -115,7 +141,8 @@
     border-radius:12px;padding:9px 11px 9px 12px;cursor:pointer;transition:.16s}
   .chip:hover{border-color:var(--line-2);background:var(--panel)}
   .chip[data-on]{border-color:var(--ember);background:var(--panel)}
-  .chip b{font-weight:500;font-size:13px;white-space:nowrap;display:block}
+  .chip b{font-weight:500;font-size:13px;white-space:nowrap;display:block;
+    max-width:26ch;overflow:hidden;text-overflow:ellipsis}
   .chip i{font-style:normal;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;display:block;margin-top:1px}
   .chiptext{text-align:left}
   .chipacts{display:flex;gap:1px;margin-left:2px}
@@ -255,9 +282,15 @@
     <div id="list"></div>
     <button class="add" id="add">+ Add segment</button>
 
+    <div class="soundrow">
+      <label for="soundsel">Segment sound</label>
+      <select id="soundsel"></select>
+      <button class="linky" id="soundtest">Preview</button>
+    </div>
+
     <p class="note">
       Each segment beeps and hands off to the next; three beeps end the session.
-      Durations accept <kbd>45s</kbd>, <kbd>1:30</kbd>, <kbd>25</kbd> (minutes), or <kbd>2m30s</kbd>.<br>
+      Type a number and tap <kbd>m</kbd> or <kbd>s</kbd>. For a mixed duration, type <kbd>1:30</kbd> directly.<br>
       <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>R</kbd> reset.
       Screen stays awake while running; the clock keeps true time if you switch away.
     </p>
@@ -299,7 +332,6 @@
 const HUES = ["#FF5A2B","#2F7D6E","#C9A227","#4A5FA5","#9A4C7E","#5B7B3A"];
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,"0");
-const fmt = s => `${pad(Math.floor(s/60))}:${pad(s%60)}`;
 
 /* ---------- durations ----------
    Segments store whole SECONDS in `s.sec`. The UI accepts several shorthands
@@ -311,11 +343,14 @@ function parseDur(raw){
   if(!s) return null;
   let m, v = null;
 
-  if((m = s.match(/^(\d+):([0-5]?\d)$/)))        v = (+m[1])*60 + (+m[2]);   // 1:30
+  if((m = s.match(/^(\d+)\s*h\s*(\d+)\s*m?$/)))  v = (+m[1])*3600 + (+m[2])*60;  // 2h 10m
+  else if((m = s.match(/^(\d+)\s*h$/)))          v = (+m[1])*3600;               // 2h
+  else if((m = s.match(/^(\d+):([0-5]\d):([0-5]\d)$/))) v = (+m[1])*3600 + (+m[2])*60 + (+m[3]); // 1:05:30
+  else if((m = s.match(/^(\d+):([0-5]?\d)$/)))   v = (+m[1])*60 + (+m[2]);       // 1:30
   else if((m = s.match(/^(\d+)\s*m\s*(\d+)\s*s?$/))) v = (+m[1])*60 + (+m[2]);   // 2m30s
-  else if((m = s.match(/^(\d+)\s*s$/)))          v = +m[1];                 // 90s
-  else if((m = s.match(/^(\d+)\s*m$/)))          v = (+m[1])*60;            // 2m
-  else if((m = s.match(/^\d+$/)))                v = (+s)*60;               // bare = minutes
+  else if((m = s.match(/^(\d+)\s*s$/)))          v = +m[1];                      // 90s
+  else if((m = s.match(/^(\d+)\s*m$/)))          v = (+m[1])*60;                 // 2m
+  else if((m = s.match(/^\d+$/)))                v = (+s)*60;                    // bare = minutes
 
   if(v === null || !Number.isFinite(v)) return null;
   if(v < MIN_SEC) return null;                   // zero-length is not a segment
@@ -325,8 +360,30 @@ function parseDur(raw){
 function fmtDur(sec){
   sec = Math.max(Math.round(+sec || 0), 0);
   if(sec < 60) return `${sec}s`;
-  const m = Math.floor(sec/60), s = sec % 60;
+  const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec % 60;
+  if(h){
+    if(s) return `${h}:${pad(m)}:${pad(s)}`;       // 1:00:30 — lossless, still readable
+    return m ? `${h}h ${m}m` : `${h}h`;            // 2h 10m
+  }
   return s ? `${m}:${String(s).padStart(2,"0")}` : `${m}m`;
+}
+
+/* Split seconds into the number + unit a person would naturally type.
+   Whole minutes show as minutes, sub-minute values as seconds; only a value
+   that needs a colon (1:30, 1:01:01) falls back to the free-form field. */
+function splitDur(sec){
+  sec = Math.max(Math.round(+sec || 0), 0);
+  if(sec < 60)        return { n: sec,    unit: "s" };
+  if(sec % 60 === 0)  return { n: sec/60, unit: "m" };
+  return { n: fmtDur(sec), unit: "x" };            // 1:30, 1:01:01 — free-form
+}
+
+/* The dial clock. Grows an hour field only when it needs one, so a 45-second
+   segment reads 00:45 rather than 0:00:45. */
+function clockOf(sec){
+  sec = Math.max(Math.round(sec), 0);
+  const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec % 60;
+  return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
 
 /* seconds in segment i — now a passthrough, no unit conversion anywhere */
@@ -436,22 +493,68 @@ seedLibrary();
 
 /* ---------- audio ---------- */
 let ac;
-function beep(times = 1, freq = 880){
+/* ---------- sound ----------
+   Every voice is synthesized, so there are no audio files to fetch and the app
+   stays offline. `end` is the three-note session-complete flourish. */
+const SOUNDS = {
+  chime:  { label:"Chime",  notes:[[880,.30,"sine"]],                       end:[[880,.22],[1108,.22],[1318,.5]] },
+  bell:   { label:"Bell",   notes:[[1318,.7,"sine",true]],                  end:[[1318,.4],[1046,.4],[880,.9]] },
+  blip:   { label:"Blip",   notes:[[1600,.07,"square"]],                    end:[[1600,.07],[1600,.07],[2000,.14]] },
+  wood:   { label:"Wood",   notes:[[420,.09,"triangle"]],                   end:[[420,.09],[420,.09],[300,.2]] },
+  rise:   { label:"Rise",   notes:[[660,.28,"sine",false,1180]],            end:[[660,.2],[880,.2],[1318,.55]] },
+  gong:   { label:"Gong",   notes:[[196,1.6,"sine",true]],                  end:[[196,1.0],[147,1.0],[98,2.2]] },
+  silent: { label:"Silent", notes:[],                                       end:[] },
+};
+const SOUND_ORDER = ["chime","bell","blip","wood","rise","gong","silent"];
+let sound = "chime";
+
+const loadSound = () => { try{ const s = localStorage.getItem("timgo.sound");
+  if(s && SOUNDS[s]) sound = s; }catch{} };
+const saveSound = () => { try{ localStorage.setItem("timgo.sound", sound) }catch{} };
+
+/* one voice: freq, seconds, waveform, long decay?, glide target */
+function voice(t, freq, dur, type="sine", ring=false, slideTo=null){
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur*0.9);
+  g.gain.setValueAtTime(.0001, t);
+  g.gain.exponentialRampToValueAtTime(ring ? .38 : .30, t + .012);
+  g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g).connect(ac.destination);
+  o.start(t); o.stop(t + dur + .02);
+}
+
+/* times=1 → segment handoff. times=3 → session complete. */
+function beep(times = 1, _legacy){
+  const S = SOUNDS[sound] || SOUNDS.chime;
   try{
     ac ||= new (window.AudioContext||window.webkitAudioContext)();
     if(ac.state === "suspended") ac.resume();
-    for(let i=0;i<times;i++){
-      const t = ac.currentTime + i*0.34;
-      const o = ac.createOscillator(), g = ac.createGain();
-      o.type = "sine"; o.frequency.setValueAtTime(freq,t);
-      g.gain.setValueAtTime(.0001,t);
-      g.gain.exponentialRampToValueAtTime(.32,t+.02);
-      g.gain.exponentialRampToValueAtTime(.0001,t+.28);
-      o.connect(g).connect(ac.destination); o.start(t); o.stop(t+.32);
-    }
+    const seq = times > 1 ? S.end : S.notes;
+    const base = S.notes[0] || [880,.3,"sine"];
+    seq.forEach((n, i) => {
+      const [f, d] = n;
+      const gap = times > 1 ? (base[1] > .5 ? d*0.55 : 0.30) : 0;
+      voice(ac.currentTime + i*gap, f, d, base[2], base[3], n[4] ?? (times>1 ? null : base[4]));
+    });
   }catch{}
-  if(navigator.vibrate) navigator.vibrate(times>1 ? [180,90,180,90,180] : 200);
+  if(navigator.vibrate && sound !== "silent")
+    navigator.vibrate(times > 1 ? [180,90,180,90,180] : 200);
 }
+
+/* a soft confirmation tick, independent of the chosen segment voice */
+function tickSound(){
+  if(sound === "silent") return;
+  try{
+    ac ||= new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === "suspended") ac.resume();
+    voice(ac.currentTime, 1180, .12, "sine");
+  }catch{}
+}
+
+/* play the current voice once, for the picker */
+const preview = () => { unlockAudio(); beep(1); };
 
 /* An AudioContext can only start from a user gesture. Call this on Start. */
 function unlockAudio(){
@@ -520,17 +623,36 @@ function drawChain(){
 
 /* ---------- list: rebuilt ONLY when segments are added or removed.
    Never touch innerHTML while a field has focus, or the keyboard dismisses. ---------- */
+/* Which unit each row's number field currently means. A display concern, not
+   model state — it is re-derived from s.sec every time the list is rebuilt. */
+const rowUnit = new Map();
+
 function buildList(){
-  $("list").innerHTML = segs.map((s,i)=>`
+  rowUnit.clear();
+  $("list").innerHTML = segs.map((s,i)=>{
+    const d = splitDur(s.sec);
+    rowUnit.set(String(s.id), d.unit);
+    const free = d.unit === "x";
+    return `
     <div class="seg" data-row="${s.id}">
       <span class="dot" style="background:${HUES[i%6]}"></span>
       <input type="text" enterkeyhint="done" value="${esc(s.name)}" data-n="${s.id}">
-      <input class="dur" type="text" inputmode="text" enterkeyhint="done"
-             value="${fmtDur(s.sec)}" data-m="${s.id}"
-             aria-label="Duration for ${esc(s.name)}"
-             title="45s · 1:30 · 25m · 2m30s">
+      <span class="durbox">
+        <input class="dur${free?" free":""}" type="text"
+               inputmode="${free?"text":"numeric"}" ${free?"":'pattern="[0-9]*"'}
+               enterkeyhint="done" value="${d.n}" data-m="${s.id}"
+               aria-label="Duration for ${esc(s.name)}"
+               title="Type a number, then tap m or s. 1:30 also works.">
+        <span class="units" role="group" aria-label="Unit">
+          <button class="u" data-u="m" data-for="${s.id}" ${d.unit==="m"?"data-on":""}
+                  aria-pressed="${d.unit==="m"}" title="Minutes">m</button>
+          <button class="u" data-u="s" data-for="${s.id}" ${d.unit==="s"?"data-on":""}
+                  aria-pressed="${d.unit==="s"}" title="Seconds">s</button>
+        </span>
+      </span>
       <button class="kill" data-x="${s.id}" aria-label="Remove segment">✕</button>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 function paintRows(){
   segs.forEach((s,i)=>{
@@ -565,11 +687,11 @@ function render(){
   $("dial").toggleAttribute("data-paused", paused);
   $("eyebrow").toggleAttribute("data-paused", paused);
   $("eyebrow").textContent = done ? "Complete" : paused ? "Paused" : cur.name;
-  $("clock").textContent   = fmt(left);
+  $("clock").textContent   = clockOf(left);
   $("sub").textContent     = done ? "All segments finished" : `Segment ${active+1} of ${segs.length}`;
 
   const ahead = segs.slice(active+1).reduce((a,s)=>a+(+s.sec||0),0);
-  $("totalbar").textContent = done ? "SESSION COMPLETE" : `${fmt(left+ahead)} SESSION REMAINING`;
+  $("totalbar").textContent = done ? "SESSION COMPLETE" : `${clockOf(left+ahead)} SESSION REMAINING`;
 
   $("go").textContent  = running ? "❚❚ Pause" : done ? "▶ Start" : "▶ Start";
   $("go").disabled     = done;
@@ -597,10 +719,10 @@ function drawPresets(){
   $("chips").innerHTML = rail.map(p => `
     <div class="chip" data-p="${p.id}" ${loaded===p.id?"data-on":""}
          role="button" tabindex="0"
-         title="${esc(p.name)} — ${sumOf(p)} min, ${p.segs.length} segments">
+         title="${esc(p.name)} — ${fmtDur(sumOf(p))}, ${p.segs.length} segments">
       <span class="chiptext">
         <b>${esc(p.name)}</b>
-        <i>${sumOf(p)} min · ${p.segs.length} seg</i>
+        <i>${fmtDur(sumOf(p))} · ${p.segs.length} seg</i>
       </span>
       <span class="chipacts">
         <button class="rm" data-r="${p.id}" aria-label="Rename ${esc(p.name)}" title="Rename">✎</button>
@@ -638,7 +760,7 @@ function drawLibrary(){
       <span class="spine" style="background:${HUES[(p.hue ?? 0)%6]}"></span>
       <span class="txt">
         <b>${esc(p.name)}</b>
-        <i>${sumOf(p)} min · ${p.segs.length} seg</i>
+        <i>${fmtDur(sumOf(p))} · ${p.segs.length} seg</i>
       </span>
       <button class="star" data-f="${p.id}" ${p.fav?"data-fav":""} ${locked?"disabled":""}
         title="${p.fav ? "Unpin" : locked ? `Only ${MAX_FAV} pinned at a time` : "Pin to main screen"}"
@@ -750,7 +872,7 @@ $("importfile").addEventListener("change", async e => {
       presets.push(clean);
     });
     savePresets(); drawPresets(); drawLibrary();
-    beep(1, 1180);
+    tickSound();
   }catch{
     $("libwrap").insertAdjacentHTML("afterbegin",
       `<p class="noresult" style="color:var(--ember)">That file isn't a Timgo export.</p>`);
@@ -819,7 +941,7 @@ function commit(fork){
     else { const p = {...snapshot(name), id: newId(), hue: presets.length % 6, fav:false};
            presets.push(p); loaded = p.id; }
   }
-  closeSheet(); savePresets(); drawPresets(); beep(1, 1180);
+  closeSheet(); savePresets(); drawPresets(); tickSound();
 }
 
 $("savepreset").onclick = () => openSheet("save", null);
@@ -838,7 +960,7 @@ function applyPreset(id){
 
   // Loading a preset wipes the current session. Never do that silently mid-run.
   if(running || (!done && active > 0)){
-    const elapsed = fmt(segs.slice(0, active).reduce((a,s)=>a+(+s.sec||0), 0)
+    const elapsed = clockOf(segs.slice(0, active).reduce((a,s)=>a+(+s.sec||0), 0)
                         + (secsOf(active) - left));
     if(!confirm(`A session is in progress (${elapsed} elapsed).\n\nLoad “${p.name}” and discard it?`))
       return;
@@ -884,7 +1006,7 @@ function stop(){
    boundaries that elapsed while the tab was asleep. */
 function advance(silent){
   if(active + 1 >= segs.length){
-    if(!silent) beep(3, 720);
+    if(!silent) beep(3);
     stop(); done = true; left = 0; render(); notify("Session complete");
     return false;
   }
@@ -956,15 +1078,24 @@ $("add").onclick = () => {
   save(); touched(); buildList(); reset();
 };
 
+/* Read a row's field + unit into seconds. Returns null while unparseable. */
+function readRow(id, raw){
+  const u = rowUnit.get(String(id)) || "x";
+  const v = String(raw).trim();
+  if(u === "x") return parseDur(v);            // free-form: 1:30, 2h, 45s
+  if(!/^\d+$/.test(v)) return parseDur(v);     // typed a colon into a numeric field
+  const n = +v;
+  const sec = u === "m" ? n*60 : n;
+  return sec >= MIN_SEC ? Math.min(sec, MAX_SEC) : null;
+}
+
 /* Typing updates the model and repaints the dial only.
-   The list DOM is left alone, so focus and the keyboard survive.
-   A half-typed duration ("1:" , "9") simply doesn't parse; we keep the last good
-   value in the model and let the field hold whatever the user is typing. */
+   The list DOM is left alone, so focus and the keyboard survive. */
 $("list").addEventListener("input", e => {
   const {n, m} = e.target.dataset;
   if(n){ segs.find(s=>s.id==n).name = e.target.value; }
   if(m){
-    const parsed = parseDur(e.target.value);
+    const parsed = readRow(m, e.target.value);
     e.target.classList.toggle("bad", e.target.value.trim() !== "" && parsed === null);
     if(parsed !== null){
       segs.find(s=>s.id==m).sec = parsed;
@@ -976,14 +1107,59 @@ $("list").addEventListener("input", e => {
   drawChain();
 });
 
+/* Tapping m/s reinterprets the number already in the field: "5" under [s]
+   means five seconds, not five minutes. Patches two buttons, rebuilds nothing. */
+$("list").addEventListener("click", e => {
+  const u = e.target.closest("[data-u]");
+  if(!u) return;
+  const id = u.dataset.for, unit = u.dataset.u;
+  const row = $("list").querySelector(`[data-row="${id}"]`);
+  const field = row.querySelector("[data-m]");
+
+  rowUnit.set(String(id), unit);
+  field.classList.remove("free");
+  field.setAttribute("inputmode", "numeric");
+
+  // if the field holds a colon form, collapse it to a plain number first
+  let n = field.value.trim();
+  if(!/^\d+$/.test(n)){
+    const sec = parseDur(n);
+    n = sec === null ? "1" : String(unit === "m" ? Math.max(Math.round(sec/60),1) : Math.min(sec, 3600));
+    field.value = n;
+  }
+
+  const parsed = readRow(id, field.value);
+  if(parsed !== null){ segs.find(s=>s.id==id).sec = parsed; }
+  field.classList.toggle("bad", parsed === null);
+
+  row.querySelectorAll("[data-u]").forEach(b => {
+    const on = b.dataset.u === unit;
+    b.toggleAttribute("data-on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+
+  save(); touched(); rewind(); drawChain();
+});
+
 /* On leaving the field, snap it to the canonical rendering of whatever we stored.
    An unparseable entry reverts rather than silently becoming 1 second. */
 $("list").addEventListener("focusout", e => {
   const m = e.target.dataset.m;
   if(!m) return;
   const s = segs.find(s=>s.id==m);
+  const d = splitDur(s.sec);
   e.target.classList.remove("bad");
-  e.target.value = fmtDur(s.sec);
+  e.target.classList.toggle("free", d.unit === "x");
+  e.target.value = d.n;
+  rowUnit.set(String(m), d.unit);
+
+  const row = $("list").querySelector(`[data-row="${m}"]`);
+  row?.querySelectorAll("[data-u]").forEach(b => {
+    const on = b.dataset.u === d.unit;
+    b.toggleAttribute("data-on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+
   save(); rewind(); drawChain();
 });
 
@@ -1003,6 +1179,17 @@ addEventListener("keydown", e => {
   if(e.key==="ArrowRight") skip();
   if(e.key.toLowerCase()==="r") reset();
 });
+
+/* ---------- sound picker ---------- */
+loadSound();
+$("soundsel").innerHTML = SOUND_ORDER
+  .map(k => `<option value="${k}"${k===sound?" selected":""}>${SOUNDS[k].label}</option>`).join("");
+$("soundsel").addEventListener("change", e => {
+  sound = SOUNDS[e.target.value] ? e.target.value : "chime";
+  saveSound();
+  if(sound !== "silent") preview();
+});
+$("soundtest").onclick = preview;
 
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 buildList();

@@ -51,14 +51,19 @@ Seeding happens exactly once. Delete them all and they stay deleted.
 
 Segments are stored in whole seconds and accept several shorthands:
 
-| You type | You get |
-|---|---|
-| `45s` | 45 seconds |
-| `1:30` | 1 min 30 sec |
-| `25` | 25 minutes |
-| `2m30s` | 2 min 30 sec |
+Type a number, then tap **m** or **s**. The toggle sets what the number means — `10`
+under `s` is ten seconds, under `m` it is ten minutes.
 
-Bare numbers are read as minutes. Anything from 1 second to 24 hours is valid.
+For a mixed duration, type it directly: `1:30`, `1:05:30`, `2h`, `45s`, `2m30s`. The field
+switches to free-form and shows the colon form back to you.
+
+Anything from 1 second to 24 hours is valid, and every value round-trips losslessly.
+
+## Sound
+
+Seven synthesized voices — Chime, Bell, Blip, Wood, Rise, Gong, Silent — chosen from the
+picker below the segment list. No audio files, so the app stays offline. Your choice
+persists. Silent also suppresses vibration.
 
 ## Accuracy
 
