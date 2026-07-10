@@ -47,6 +47,20 @@ seeds to pop).
 
 Seeding happens exactly once. Delete them all and they stay deleted.
 
+## While it runs
+
+**+1m** stretches the segment on the clock. **⏮** restarts it (or steps back if you just
+arrived — music-player rules); it also reopens a finished session. **⏭** works paused too.
+When a session completes, the Start button becomes **Run again**.
+
+## Building timers
+
+Drag the **⠿** grip to reorder. The **⋯** on each row opens duplicate, move, delete, and a
+**per-segment sound** — Tabata ships with a blip for work and a wood block for rest, so you
+can tell them apart face-down in a plank. **⧉ Repeat all ×2** doubles the list: a work/rest
+pair becomes eight rounds in three taps. Editing the running segment's duration applies on
+blur, keeping the time you've already spent.
+
 ## Durations
 
 Segments are stored in whole seconds and accept several shorthands:

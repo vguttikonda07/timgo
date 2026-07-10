@@ -55,8 +55,10 @@
   .totalbar{margin-top:6px;font-size:10.5px;color:var(--mute);letter-spacing:.14em}
 
   /* ---- controls ---- */
-  .ctrl{display:flex;gap:10px;justify-content:center;margin-top:28px;flex-wrap:wrap;
-    padding:0 4px}
+  .ctrl{display:flex;gap:9px;justify-content:center;align-items:center;margin-top:28px;
+    flex-wrap:wrap;padding:0 4px}
+  .ctrl .icon{padding:12px 15px;font-size:15px;line-height:1}
+  .cmsg{margin:0 0 4px;font-size:13.5px;color:var(--bone);line-height:1.6}
   button{font:inherit;font-size:14px;cursor:pointer;border-radius:999px;
     display:inline-flex;align-items:center;gap:8px;transition:.16s}
   .primary{background:var(--ember);color:#140A05;font-weight:600;border:0;padding:13px 30px}
@@ -81,11 +83,38 @@
   .tag{font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
   .ok{color:#6E9C4A} .over{color:var(--ember)} .idle{color:var(--mute)}
 
-  .seg{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-top:8px;
+  .seg{display:block;padding:11px 12px;margin-top:8px;
     border:1px solid var(--line);border-radius:14px;background:#0F1114;transition:.2s}
+  .segrow{display:flex;align-items:center;gap:12px}
+  .seg.dragging{opacity:.88;border-color:var(--ember);position:relative;z-index:3}
   .seg[data-live]{border-color:var(--ember);background:var(--panel)}
   .seg[data-past]{opacity:.42}
   .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .grip{appearance:none;-webkit-appearance:none;background:0;border:0;border-radius:6px;
+    padding:4px 3px;flex:0 0 auto;font-size:13px;line-height:1;cursor:grab;
+    touch-action:none;user-select:none;-webkit-user-select:none}
+  .grip:active{cursor:grabbing}
+  .more{appearance:none;-webkit-appearance:none;background:0;border:0;border-radius:7px;
+    color:var(--mute);width:26px;height:26px;flex:0 0 auto;font-size:15px;line-height:1;cursor:pointer}
+  .more:hover{background:#1B1F24;color:var(--bone)}
+  .more[data-set]{color:var(--ember)}
+  .tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .tray[hidden]{display:none}
+  .tl{font-size:11px;color:var(--mute)}
+  .snd{background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:8px;
+    padding:6px 22px 6px 9px;font:inherit;font-size:12.5px;cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),
+                     linear-gradient(135deg,var(--mute) 50%,transparent 50%);
+    background-position:calc(100% - 13px) 50%, calc(100% - 8px) 50%;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .snd:focus{outline:0;border-color:var(--ember)}
+  .tsp{flex:1}
+  .tb{appearance:none;-webkit-appearance:none;background:0;border:1px solid var(--line);
+    border-radius:8px;color:var(--mute);font:inherit;font-size:12px;padding:6px 10px;cursor:pointer}
+  .tb:hover{color:var(--bone);border-color:var(--line-2)}
+  .tdel:hover{color:var(--ember);border-color:var(--ember)}
   .seg input[type=text]{flex:1;min-width:0;background:transparent;border:0;padding:6px 0;font-size:14px}
   .durbox{flex:0 0 auto;display:flex;align-items:center;gap:6px}
   .seg input.dur{flex:0 0 54px;width:54px;text-align:right;font-variant-numeric:tabular-nums;
@@ -107,8 +136,9 @@
   .seg .unit{font-size:11px;color:var(--mute)}
   .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0;border-radius:7px}
   .kill:hover{color:var(--ember)}
+  .listactions{display:flex;gap:8px;margin-top:10px}
   .add{background:0;border:1px dashed var(--line-2);color:var(--mute);
-    width:100%;justify-content:center;padding:11px;margin-top:10px}
+    flex:1;justify-content:center;padding:11px}
   .add:hover{color:var(--bone);border-color:var(--bone)}
   .soundrow{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}
   .soundrow label{flex:0 0 auto}
@@ -250,8 +280,10 @@
     </div>
 
     <div class="ctrl">
+      <button class="ghost icon" id="back" disabled aria-label="Back" title="Restart segment · previous">⏮</button>
       <button class="primary" id="go">▶ Start</button>
-      <button class="ghost" id="skip" disabled>⏭ Skip</button>
+      <button class="ghost icon" id="skip" disabled aria-label="Skip" title="Skip to next segment">⏭</button>
+      <button class="ghost" id="extend" disabled title="Add a minute to the running segment">+1m</button>
       <button class="ghost" id="reset">↺ Reset</button>
     </div>
   </section>
@@ -283,7 +315,10 @@
     </div>
 
     <div id="list"></div>
-    <button class="add" id="add">+ Add segment</button>
+    <div class="listactions">
+      <button class="add" id="add">+ Add segment</button>
+      <button class="add" id="repeat" title="Duplicate the whole list — 1 round becomes 2">⧉ Repeat all ×2</button>
+    </div>
 
     <div class="soundrow">
       <label for="soundsel">Segment sound</label>
@@ -293,11 +328,24 @@
 
     <p class="note">
       Each segment beeps and hands off to the next; three beeps end the session.
-      Type a number and tap <kbd>m</kbd> or <kbd>s</kbd>. For a mixed duration, type <kbd>1:30</kbd> directly.<br>
-      <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>R</kbd> reset.
+      Type a number and tap <kbd>m</kbd> or <kbd>s</kbd>; <kbd>1:30</kbd> also works.
+      Drag <kbd>⠿</kbd> to reorder. <kbd>⋯</kbd> holds duplicate, move, delete, and a per-segment sound.<br>
+      <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>←</kbd> back &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>R</kbd> reset.
       Screen stays awake while running; the clock keeps true time if you switch away.
     </p>
   </section>
+</div>
+
+<!-- confirm dialog -->
+<div class="sheet" id="csheet" hidden>
+  <div class="card">
+    <h2>Hold on</h2>
+    <p class="cmsg" id="cmsg"></p>
+    <div class="sheetbtns">
+      <button class="ghost" id="ccancel">Keep going</button>
+      <button class="primary" id="cok">Discard</button>
+    </div>
+  </div>
 </div>
 
 <!-- library drawer -->
@@ -396,6 +444,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 let segs, active = 0, left = 0, running = false, done = false, tick = null, lock = null, uid = 0;
 let presets = [], loaded = null;   // loaded = id of the preset currently in the editor
 let endsAt = null;                 // wall-clock ms when the active segment ends
+let started = false;               // a session is underway (running OR paused mid-way)
 const totalSec = () => segs.reduce((a,s)=>a+(+s.sec||0), 0);   // Session = sum of segments
 
 /* v9 and earlier stored whole minutes in `s.min`. Upgrade in place, once, on read.
@@ -460,7 +509,7 @@ const STARTER = [
   ["Language Study",0,"Hobby",[["Review old cards",900],["New vocabulary",1200],["Listen, no subtitles",900],["Speak aloud",600]]],
   ["Strength Session",1,"Hobby",[["Warm-up",600],["Compound lifts",1800],["Accessory work",900],["Stretch",600]]],
   ["Bread Bulk Ferment",3,"Hobby",[["Autolyse",1800],["Fold, then wait",1800],["Fold again, wait",1800],["Final rise",3600]]],
-  ["Tabata",5,"Hobby",[["Warm-up",180],["Work",20],["Rest",10],["Work",20],["Rest",10],["Work",20],["Rest",10],["Work",20],["Cool down",180]]],
+  ["Tabata",5,"Hobby",[["Warm-up",180],["Work",20,"blip"],["Rest",10,"wood"],["Work",20,"blip"],["Rest",10,"wood"],["Work",20,"blip"],["Rest",10,"wood"],["Work",20,"blip"],["Cool down",180]]],
   ["Pour Over",4,"Hobby",[["Rinse the filter",30],["Bloom",45],["First pour",30],["Draw down",60],["Second pour",30],["Finish",90]]],
   ["Plank Ladder",1,"Hobby",[["Plank",30],["Rest",15],["Plank",45],["Rest",15],["Plank",60],["Rest",15],["Plank",30]]],
 
@@ -479,7 +528,7 @@ function seedLibrary(){
   // STARTER durations are written in seconds
   presets = STARTER.map(([name, hue, cat, segs]) => ({
     id: newId(), name, hue, cat, fav: false,
-    segs: segs.map(([n,sec]) => ({ name:n, sec })),
+    segs: segs.map(([n,sec,snd]) => ({ name:n, sec, ...(snd ? {snd} : {}) })),
   }));
   // pin a useful three so the rail isn't arbitrary
   ["Pomodoro ×4","Basmati Rice","Morning Pages"].forEach(n => {
@@ -510,6 +559,8 @@ const SOUNDS = {
 };
 const SOUND_ORDER = ["chime","bell","blip","wood","rise","gong","silent"];
 let sound = "chime";
+/* a segment may carry its own voice; fall back to the app-wide choice */
+const sndOf = i => (segs[i]?.snd && SOUNDS[segs[i].snd]) ? segs[i].snd : sound;
 
 const loadSound = () => { try{ const s = localStorage.getItem("timgo.sound");
   if(s && SOUNDS[s]) sound = s; }catch{} };
@@ -528,9 +579,12 @@ function voice(t, freq, dur, type="sine", ring=false, slideTo=null){
   o.start(t); o.stop(t + dur + .02);
 }
 
-/* times=1 → segment handoff. times=3 → session complete. */
-function beep(times = 1, _legacy){
-  const S = SOUNDS[sound] || SOUNDS.chime;
+/* times=1 → segment handoff. times=3 → session complete.
+   `key` overrides the app-wide voice for this one sound. */
+function beep(times = 1, key){
+  const k = (key && SOUNDS[key]) ? key : sound;
+  beep._last = { times, key: k };          // observable for tests
+  const S = SOUNDS[k] || SOUNDS.chime;
   try{
     ac ||= new (window.AudioContext||window.webkitAudioContext)();
     if(ac.state === "suspended") ac.resume();
@@ -542,7 +596,7 @@ function beep(times = 1, _legacy){
       voice(ac.currentTime + i*gap, f, d, base[2], base[3], n[4] ?? (times>1 ? null : base[4]));
     });
   }catch{}
-  if(navigator.vibrate && sound !== "silent")
+  if(navigator.vibrate && k !== "silent")
     navigator.vibrate(times > 1 ? [180,90,180,90,180] : 200);
 }
 
@@ -626,9 +680,44 @@ function drawChain(){
 
 /* ---------- list: rebuilt ONLY when segments are added or removed.
    Never touch innerHTML while a field has focus, or the keyboard dismisses. ---------- */
+const MAX_SEGS = 64;
+
+/* Move a segment; if a session is underway, the active segment is tracked by
+   id so reordering the future never disturbs the clock. */
+function moveSeg(from, to){
+  if(from===to || from<0 || to<0 || from>=segs.length || to>=segs.length) return false;
+  const activeId = segs[active]?.id;
+  const [s] = segs.splice(from, 1);
+  segs.splice(to, 0, s);
+  if(started || done){
+    const ni = segs.findIndex(x => x.id === activeId);
+    if(ni > -1) active = ni;
+  }
+  return true;
+}
+
+function dupSeg(id){
+  if(segs.length >= MAX_SEGS) return false;
+  const i = segs.findIndex(s => s.id == id);
+  if(i < 0) return false;
+  segs.splice(i+1, 0, { ...segs[i], id: ++uid });
+  return true;
+}
+
+/* one round becomes two: W,R -> W,R,W,R. Three taps turn a pair into 8 rounds. */
+function repeatAll(){
+  if(!segs.length || segs.length*2 > MAX_SEGS) return false;
+  segs = segs.concat(segs.map(s => ({ ...s, id: ++uid })));
+  return true;
+}
+
 /* Which unit each row's number field currently means. A display concern, not
    model state — it is re-derived from s.sec every time the list is rebuilt. */
 const rowUnit = new Map();
+
+const sndOptions = cur =>
+  `<option value="">Default</option>` +
+  SOUND_ORDER.map(k => `<option value="${k}"${cur===k?" selected":""}>${SOUNDS[k].label}</option>`).join("");
 
 function buildList(){
   rowUnit.clear();
@@ -638,22 +727,35 @@ function buildList(){
     const free = d.unit === "x";
     return `
     <div class="seg" data-row="${s.id}">
-      <span class="dot" style="background:${HUES[i%6]}"></span>
-      <input type="text" enterkeyhint="done" value="${esc(s.name)}" data-n="${s.id}">
-      <span class="durbox">
-        <input class="dur${free?" free":""}" type="text"
-               inputmode="${free?"text":"numeric"}" ${free?"":'pattern="[0-9]*"'}
-               enterkeyhint="done" value="${d.n}" data-m="${s.id}"
-               aria-label="Duration for ${esc(s.name)}"
-               title="Type a number, then tap m or s. 1:30 also works.">
-        <span class="units" role="group" aria-label="Unit">
-          <button class="u" data-u="m" data-for="${s.id}" ${d.unit==="m"?"data-on":""}
-                  aria-pressed="${d.unit==="m"}" title="Minutes">m</button>
-          <button class="u" data-u="s" data-for="${s.id}" ${d.unit==="s"?"data-on":""}
-                  aria-pressed="${d.unit==="s"}" title="Seconds">s</button>
+      <div class="segrow">
+        <button class="grip" data-drag="${s.id}" aria-label="Drag to reorder"
+                style="color:${HUES[i%6]}">⠿</button>
+        <input type="text" enterkeyhint="done" value="${esc(s.name)}" data-n="${s.id}">
+        <span class="durbox">
+          <input class="dur${free?" free":""}" type="text"
+                 inputmode="${free?"text":"numeric"}" ${free?"":'pattern="[0-9]*"'}
+                 enterkeyhint="done" value="${d.n}" data-m="${s.id}"
+                 aria-label="Duration for ${esc(s.name)}"
+                 title="Type a number, then tap m or s. 1:30 also works.">
+          <span class="units" role="group" aria-label="Unit">
+            <button class="u" data-u="m" data-for="${s.id}" ${d.unit==="m"?"data-on":""}
+                    aria-pressed="${d.unit==="m"}" title="Minutes">m</button>
+            <button class="u" data-u="s" data-for="${s.id}" ${d.unit==="s"?"data-on":""}
+                    aria-pressed="${d.unit==="s"}" title="Seconds">s</button>
+          </span>
         </span>
-      </span>
-      <button class="kill" data-x="${s.id}" aria-label="Remove segment">✕</button>
+        <button class="more" data-more="${s.id}" ${s.snd?"data-set":""}
+                aria-label="Segment options" aria-expanded="false">⋯</button>
+      </div>
+      <div class="tray" data-tray="${s.id}" hidden>
+        <label class="tl">Sound</label>
+        <select class="snd" data-snd="${s.id}" aria-label="Sound for ${esc(s.name)}">${sndOptions(s.snd)}</select>
+        <span class="tsp"></span>
+        <button class="tb" data-dup="${s.id}">⧉ Duplicate</button>
+        <button class="tb" data-up="${s.id}" aria-label="Move up">↑</button>
+        <button class="tb" data-down="${s.id}" aria-label="Move down">↓</button>
+        <button class="tb tdel" data-x="${s.id}">✕ Delete</button>
+      </div>
     </div>`;
   }).join("");
 }
@@ -685,7 +787,7 @@ function render(){
   $("hand").setAttribute("transform", `rotate(${pct*360} 180 180)`);
   $("glow").style.background = HUES[active%6];
 
-  const paused = !running && !done && (active > 0 || left < secsOf(active));
+  const paused = started && !running && !done;
   $("hand").style.opacity = running ? 1 : paused ? .55 : .25;
   $("dial").toggleAttribute("data-paused", paused);
   $("eyebrow").toggleAttribute("data-paused", paused);
@@ -696,9 +798,11 @@ function render(){
   const ahead = segs.slice(active+1).reduce((a,s)=>a+(+s.sec||0),0);
   $("totalbar").textContent = done ? "SESSION COMPLETE" : `${clockOf(left+ahead)} SESSION REMAINING`;
 
-  $("go").textContent  = running ? "❚❚ Pause" : done ? "▶ Start" : "▶ Start";
-  $("go").disabled     = done;
-  $("skip").disabled   = !running;
+  $("go").textContent  = running ? "❚❚ Pause" : done ? "↺ Run again" : "▶ Start";
+  $("go").disabled     = false;
+  $("skip").disabled   = done || !started;
+  $("back").disabled   = !started && !done;
+  $("extend").disabled = done || !started;
   drawChain();
 }
 
@@ -860,6 +964,7 @@ $("importfile").addEventListener("change", async e => {
       const segsClean = p.segs.map(s => ({
         name: String(s?.name || "Branch").slice(0,40),
         sec: Math.min(Math.max(+s?.sec || (+s?.min || 1)*60, MIN_SEC), MAX_SEC),
+        ...(s?.snd && SOUNDS[s.snd] ? {snd: s.snd} : {}),
       }));   // cap at 24h per segment
       const clean = {
         id: newId(),
@@ -923,7 +1028,8 @@ $("pname").addEventListener("input", checkName);
 
 const snapshot = name => ({
   name,
-  segs: segs.map(s => ({ name:s.name, sec: Math.max(+s.sec||MIN_SEC, MIN_SEC) }))
+  segs: segs.map(s => ({ name:s.name, sec: Math.max(+s.sec||MIN_SEC, MIN_SEC),
+                         ...(s.snd && SOUNDS[s.snd] ? {snd:s.snd} : {}) }))
 });
 
 function commit(fork){
@@ -957,21 +1063,42 @@ $("pname").addEventListener("keydown", e => {
   if(e.key === "Escape") closeSheet();
 });
 
+/* In-app confirm, styled like the rest of the app. */
+let confirmCb = null;
+function askConfirm(msg, okLabel, cb){
+  $("cmsg").textContent = msg;
+  $("cok").textContent = okLabel || "OK";
+  confirmCb = cb;
+  $("csheet").hidden = false;
+}
+function closeConfirm(run){
+  $("csheet").hidden = true;
+  const cb = confirmCb; confirmCb = null;
+  if(run && cb) cb();
+}
+$("cok").onclick = () => closeConfirm(true);
+$("ccancel").onclick = () => closeConfirm(false);
+$("csheet").addEventListener("click", e => { if(e.target === $("csheet")) closeConfirm(false); });
+
 function applyPreset(id){
   const p = presets.find(x => x.id === id);
   if(!p) return;
 
+  const proceed = () => {
+    segs = p.segs.map(s => ({...s, id:++uid}));
+    loaded = id;
+    save(); buildList(); reset(); drawPresets();
+  };
+
   // Loading a preset wipes the current session. Never do that silently mid-run.
-  if(running || (!done && active > 0)){
+  if(running || (!done && started)){
     const elapsed = clockOf(segs.slice(0, active).reduce((a,s)=>a+(+s.sec||0), 0)
                         + (secsOf(active) - left));
-    if(!confirm(`A session is in progress (${elapsed} elapsed).\n\nLoad “${p.name}” and discard it?`))
-      return;
+    askConfirm(`A session is in progress (${elapsed} elapsed). Load “${p.name}” and discard it?`,
+               "Discard session", proceed);
+    return;
   }
-
-  segs = p.segs.map(s => ({...s, id:++uid}));
-  loaded = id;
-  save(); buildList(); reset(); drawPresets();
+  proceed();
 }
 
 $("chips").addEventListener("click", e => {
@@ -1015,7 +1142,7 @@ function advance(silent){
   }
   active++;
   left = secsOf(active);
-  if(!silent){ beep(1); notify(`${segs[active].name} — ${fmtDur(segs[active].sec)}`); }
+  if(!silent){ beep(1, sndOf(active)); notify(`${segs[active].name} — ${fmtDur(segs[active].sec)}`); }
   return true;
 }
 
@@ -1041,13 +1168,13 @@ function sync(){
 function tickOnce(){ sync(); render(); }
 
 function toggle(){
-  if(done) return;
   if(running){                       // pause: bank the remaining time
     left = Math.max(Math.round((endsAt - Date.now()) / 1000), 0);
     stop(); render(); return;
   }
+  if(done){ done = false; active = 0; left = secsOf(0); }   // Run again
   unlockAudio();
-  running = true;
+  running = true; started = true;
   endsAt = Date.now() + left * 1000;
   wake(true);
   tick = setInterval(tickOnce, 100);  // sub-second segments need a tight poll; sync is idempotent
@@ -1055,15 +1182,49 @@ function toggle(){
 }
 
 function skip(){
-  if(!running) return;
-  if(advance(false)) endsAt = Date.now() + left * 1000;
+  if(done || !started) return;
+  const live = running;
+  if(advance(!live) && live) endsAt = Date.now() + left * 1000;  // silent skip while paused
   render();
 }
 
-function reset(){ stop(); done=false; active=0; left=secsOf(0); render(); }
+/* Music-player semantics: deep into a segment restarts it; near its start
+   goes back one. From a finished session, back reopens the last segment. */
+function back(){
+  if(!started && !done) return false;
+  if(done){
+    done = false; active = Math.max(segs.length - 1, 0); left = secsOf(active);
+    render(); return true;
+  }
+  const consumed = secsOf(active) - left;
+  if(consumed > 3 || active === 0) left = secsOf(active);
+  else { active--; left = secsOf(active); }
+  if(running) endsAt = Date.now() + left * 1000;
+  render(); return true;
+}
 
-/* rewind the clock without rebuilding the list — safe to call while typing */
-function rewind(){ if(!running && !done){ active=0; left=secsOf(0); } render(); }
+/* +1 minute to whatever is on the clock, running or paused. */
+function extend(){
+  if(done || !started) return false;
+  left += 60;
+  if(running && endsAt !== null) endsAt += 60000;
+  render(); return true;
+}
+
+/* Applying a new duration to the segment that is mid-flight: keep the time
+   already spent, re-anchor the rest. `consumed` was captured at focus time. */
+function liveResize(consumed){
+  left = Math.max(secsOf(active) - consumed, 1);
+  if(running) endsAt = Date.now() + left * 1000;
+  render();
+}
+
+function reset(){ stop(); done=false; started=false; active=0; left=secsOf(0); render(); }
+
+/* keep the idle preview clock in step with segment-1 edits — but never yank a
+   PAUSED session back to the start (that was a real bug: editing any duration
+   while paused mid-way silently reset the whole session) */
+function rewind(){ if(!running && !done && !started){ active=0; left=secsOf(0); } render(); }
 
 /* ---------- events ---------- */
 $("go").onclick = () => {
@@ -1074,12 +1235,16 @@ $("go").onclick = () => {
   toggle();   // never let a permission prompt block starting the timer
 };
 $("skip").onclick = skip;
+$("back").onclick = back;
+$("extend").onclick = extend;
 $("reset").onclick = reset;
 
 $("add").onclick = () => {
+  if(segs.length >= MAX_SEGS) return;
   segs.push({id:++uid, name:`Branch ${segs.length+1}`, sec: 300});
-  save(); touched(); buildList(); reset();
+  afterStructure(null);
 };
+$("repeat").onclick = () => { if(repeatAll()) afterStructure(null); };
 
 /* Read a row's field + unit into seconds. Returns null while unparseable. */
 function readRow(id, raw){
@@ -1112,7 +1277,41 @@ $("list").addEventListener("input", e => {
 
 /* Tapping m/s reinterprets the number already in the field: "5" under [s]
    means five seconds, not five minutes. Patches two buttons, rebuilds nothing. */
+/* After any structural change, refresh and keep the tray you were using open. */
+function afterStructure(openTrayId){
+  save(); touched(); buildList();
+  if(!started && !done) rewind(); else render();
+  drawChain();
+  if(openTrayId != null){
+    const t = $("list").querySelector(`[data-tray="${openTrayId}"]`);
+    const m = $("list").querySelector(`[data-more="${openTrayId}"]`);
+    if(t){ t.hidden = false; m?.setAttribute("aria-expanded","true"); }
+  }
+}
+
 $("list").addEventListener("click", e => {
+  const more = e.target.closest("[data-more]");
+  if(more){
+    const t = $("list").querySelector(`[data-tray="${more.dataset.more}"]`);
+    if(t){ t.hidden = !t.hidden; more.setAttribute("aria-expanded", String(!t.hidden)); }
+    return;
+  }
+  const dup = e.target.closest("[data-dup]");
+  if(dup){ if(dupSeg(dup.dataset.dup)) afterStructure(dup.dataset.dup); return; }
+
+  const up = e.target.closest("[data-up]");
+  if(up){
+    const i = segs.findIndex(s => s.id == up.dataset.up);
+    if(moveSeg(i, i-1)) afterStructure(up.dataset.up);
+    return;
+  }
+  const down = e.target.closest("[data-down]");
+  if(down){
+    const i = segs.findIndex(s => s.id == down.dataset.down);
+    if(moveSeg(i, i+1)) afterStructure(down.dataset.down);
+    return;
+  }
+
   const u = e.target.closest("[data-u]");
   if(!u) return;
   const id = u.dataset.for, unit = u.dataset.u;
@@ -1144,6 +1343,27 @@ $("list").addEventListener("click", e => {
   save(); touched(); rewind(); drawChain();
 });
 
+$("list").addEventListener("change", e => {
+  const id = e.target.dataset.snd;
+  if(!id) return;
+  const s = segs.find(x => x.id == id);
+  if(!s) return;
+  const v = e.target.value;
+  if(v && SOUNDS[v]) s.snd = v; else delete s.snd;
+  $("list").querySelector(`[data-more="${id}"]`)?.toggleAttribute("data-set", !!s.snd);
+  save(); touched();
+  unlockAudio(); beep(1, s.snd);            // hear it immediately
+});
+
+/* Editing the duration of the segment that is currently on the clock: capture
+   how much has been consumed at focus, apply the new length on blur. */
+let liveEdit = null;
+$("list").addEventListener("focusin", e => {
+  const m = e.target.dataset.m;
+  if(m && started && !done && segs[active]?.id == m)
+    liveEdit = { id: m, consumed: secsOf(active) - left };
+});
+
 /* On leaving the field, snap it to the canonical rendering of whatever we stored.
    An unparseable entry reverts rather than silently becoming 1 second. */
 $("list").addEventListener("focusout", e => {
@@ -1167,19 +1387,70 @@ $("list").addEventListener("focusout", e => {
 });
 
 /* Enter dismisses the keyboard instead of submitting anything. */
+/* Drag the grip to reorder. The dragged row is moved in the DOM as the pointer
+   crosses row midpoints; the array is reconciled from DOM order on release. */
+let drag = null;
+$("list").addEventListener("pointerdown", e => {
+  const g = e.target.closest("[data-drag]");
+  if(!g) return;
+  drag = { row: g.closest(".seg") };
+  drag.row.classList.add("dragging");
+  try{ g.setPointerCapture(e.pointerId); }catch{}
+  e.preventDefault();
+});
+$("list").addEventListener("pointermove", e => {
+  if(!drag) return;
+  const rows = [...$("list").querySelectorAll(".seg")].filter(r => r !== drag.row);
+  for(const r of rows){
+    const b = r.getBoundingClientRect?.();
+    if(!b || e.clientY < b.top || e.clientY > b.bottom) continue;
+    if(e.clientY < b.top + b.height/2) $("list").insertBefore(drag.row, r);
+    else $("list").insertBefore(drag.row, r.nextSibling);
+    break;
+  }
+});
+function endDrag(){
+  if(!drag) return;
+  drag.row.classList.remove("dragging");
+  drag = null;
+  const ids = [...$("list").querySelectorAll("[data-row]")].map(r => r.dataset.row);
+  if(!ids.length) return;
+  const activeId = segs[active]?.id;
+  const next = ids.map(id => segs.find(s => String(s.id) === id)).filter(Boolean);
+  if(next.length !== segs.length) return;    // something odd; keep the array as truth
+  segs = next;
+  if(started || done){
+    const ni = segs.findIndex(s => s.id === activeId);
+    if(ni > -1) active = ni;
+  }
+  afterStructure(null);
+}
+$("list").addEventListener("pointerup", endDrag);
+$("list").addEventListener("pointercancel", endDrag);
+
 $("list").addEventListener("keydown", e => {
   if(e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur();
 });
 $("list").addEventListener("click", e => {
   const x = e.target.closest("[data-x]");
-  if(x && segs.length>1){ segs = segs.filter(s=>s.id!=x.dataset.x); save(); touched(); buildList(); reset(); }
+  if(!x || segs.length <= 1) return;
+  const i = segs.findIndex(s => s.id == x.dataset.x);
+  segs = segs.filter(s => s.id != x.dataset.x);
+  if(started || done){                       // deleting around a live session
+    if(i < active) active--;
+    if(active >= segs.length) active = segs.length - 1;
+    if(i === active){ left = Math.min(left, secsOf(active)); }
+  }
+  afterStructure(null);
 });
 addEventListener("keydown", e => {
+  if(!$("csheet").hidden){ if(e.key==="Escape") closeConfirm(false); return; }
   if(!$("sheet").hidden){ if(e.key==="Escape") closeSheet(); return; }
   if(!$("drawer").hidden){ if(e.key==="Escape") closeLib(); return; }
-  if(e.target.tagName === "INPUT") return;
+  if(e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
   if(e.code==="Space"){ e.preventDefault(); toggle(); }
   if(e.key==="ArrowRight") skip();
+  if(e.key==="ArrowLeft") back();
   if(e.key.toLowerCase()==="r") reset();
 });
 
