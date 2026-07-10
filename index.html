@@ -94,15 +94,18 @@
   .seg input.dur.free{flex-basis:82px;width:82px}   /* 1:01:01 needs the room */
   .seg input.dur:focus{outline:0;border-color:var(--ember)}
   .seg input.dur.bad{border-color:var(--ember);color:var(--ember)}
-  .units{display:flex;background:var(--ink);border:1px solid var(--line);
-    border-radius:8px;overflow:hidden;flex:0 0 auto}
-  .u{background:0;border:0;color:var(--mute);font:inherit;font-size:12px;
-    padding:8px 0;line-height:1;width:29px;cursor:pointer;transition:.12s}
+  .units{display:flex;gap:2px;padding:2px;background:var(--ink);
+    border:1px solid var(--line);border-radius:9px;flex:0 0 auto}
+  .u{appearance:none;-webkit-appearance:none;background:0;border:0;
+    border-radius:6px;                              /* override the global pill */
+    display:flex;align-items:center;justify-content:center;
+    color:var(--mute);font:inherit;font-size:12px;line-height:1;
+    width:26px;height:26px;padding:0;cursor:pointer;transition:.12s}
   .u:hover{color:var(--bone)}
   .u[data-on]{background:var(--ember);color:#140A05;font-weight:600}
-  .u:focus-visible{outline:2px solid var(--ember);outline-offset:-2px}
+  .u:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
   .seg .unit{font-size:11px;color:var(--mute)}
-  .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0}
+  .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0;border-radius:7px}
   .kill:hover{color:var(--ember)}
   .add{background:0;border:1px dashed var(--line-2);color:var(--mute);
     width:100%;justify-content:center;padding:11px;margin-top:10px}
@@ -174,7 +177,7 @@
   @keyframes slide{from{transform:translateX(100%)}to{transform:none}}
   .drawer header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
   .drawer h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
-  .x{background:0;border:0;color:var(--mute);font-size:16px;padding:6px;line-height:0}
+  .x{background:0;border:0;color:var(--mute);font-size:16px;padding:6px;line-height:0;border-radius:7px}
   .x:hover{color:var(--bone)}
   #libsearch{width:100%;padding:11px 12px;font-size:14px;border-radius:11px}
   #libsearch::-webkit-search-cancel-button{filter:invert(.6)}
