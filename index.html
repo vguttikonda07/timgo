@@ -44,6 +44,10 @@
     transition:background .6s ease;pointer-events:none}
   .face{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:2px}
   .eyebrow{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--mute)}
+  .eyebrow[data-paused]{color:var(--ember);animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+  .dial[data-paused] .glow{opacity:.06}
+  .dial[data-paused] svg{filter:saturate(.35)}
   .clock{font-size:clamp(52px,15vw,72px);font-weight:200;letter-spacing:-.03em;
     font-variant-numeric:tabular-nums;line-height:1;margin:10px 0 8px}
   .sub{font-size:11.5px;color:var(--mute);letter-spacing:.08em}
@@ -62,6 +66,9 @@
 
   /* ---- panel ---- */
   .row{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+  .sessum{display:flex;align-items:baseline;gap:9px}
+  .sessum b{font-size:22px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .sessum .unit{font-size:11px;color:var(--mute)}
   label{font-size:12.5px;color:var(--mute);letter-spacing:.06em}
   input{font:inherit;background:var(--panel);color:var(--bone);
     border:1px solid var(--line);border-radius:10px;padding:9px 11px;
@@ -78,6 +85,11 @@
   .seg[data-past]{opacity:.42}
   .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
   .seg input[type=text]{flex:1;min-width:0;background:transparent;border:0;padding:6px 0;font-size:14px}
+  .seg input.dur{flex:0 0 74px;text-align:right;font-variant-numeric:tabular-nums;
+    background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;
+    font-size:13px;transition:border-color .14s}
+  .seg input.dur:focus{outline:0;border-color:var(--ember)}
+  .seg input.dur.bad{border-color:var(--ember);color:var(--ember)}
   .seg .unit{font-size:11px;color:var(--mute)}
   .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0}
   .kill:hover{color:var(--ember)}
@@ -87,6 +99,94 @@
   .note{margin-top:18px;font-size:11.5px;color:var(--mute);line-height:1.7}
   kbd{background:var(--panel);border:1px solid var(--line);border-radius:5px;
     padding:1px 5px;font:inherit;font-size:11px}
+
+  /* ---- presets ---- */
+  .presets{margin-top:22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .phead{display:flex;align-items:center;justify-content:space-between}
+  .linky{background:0;border:0;color:var(--ember);font-size:12.5px;padding:4px 0;letter-spacing:.02em}
+  .linky:hover{text-decoration:underline}
+  .linky:disabled{color:var(--mute);text-decoration:none}
+  .chips{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:4px;
+    scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips:empty{display:none}
+  .chip{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:9px;
+    background:#0F1114;border:1px solid var(--line);border-left:3px solid var(--line);
+    border-radius:12px;padding:9px 11px 9px 12px;cursor:pointer;transition:.16s}
+  .chip:hover{border-color:var(--line-2);background:var(--panel)}
+  .chip[data-on]{border-color:var(--ember);background:var(--panel)}
+  .chip b{font-weight:500;font-size:13px;white-space:nowrap;display:block}
+  .chip i{font-style:normal;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;display:block;margin-top:1px}
+  .chiptext{text-align:left}
+  .chipacts{display:flex;gap:1px;margin-left:2px}
+  .chip .rm{background:0;border:0;color:#4C535B;padding:4px;line-height:0;font-size:12px;border-radius:6px}
+  .chip .rm:hover{color:var(--bone);background:#1B1F24}
+  .chip .rm[data-d]:hover{color:var(--ember)}
+  .empty{margin:12px 0 0;font-size:11.5px;color:var(--mute);line-height:1.6}
+  .empty[hidden]{display:none}
+
+  .hint{margin:10px 0 0;font-size:11.5px;color:var(--mute);line-height:1.5}
+  .hint[hidden]{display:none}
+
+  /* ---- tagline ---- */
+  .tagline{margin:10px 0 0;font-size:13px;color:var(--mute);letter-spacing:.01em}
+  .tagline em{font-style:normal;color:var(--bone)}
+
+  .pacts{display:flex;gap:16px;align-items:center}
+  #libcount{opacity:.6;font-variant-numeric:tabular-nums}
+
+  /* ---- drawer ---- */
+  .scrim{position:fixed;inset:0;background:rgba(6,7,9,.66);backdrop-filter:blur(4px);z-index:8}
+  .scrim[hidden]{display:none}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(90vw,380px);z-index:9;
+    background:#0E1013;border-left:1px solid var(--line-2);
+    padding:max(env(safe-area-inset-top),18px) 18px calc(env(safe-area-inset-bottom) + 14px);
+    display:flex;flex-direction:column;
+    animation:slide .22s cubic-bezier(.22,1,.36,1)}
+  .drawer[hidden]{display:none}
+  @keyframes slide{from{transform:translateX(100%)}to{transform:none}}
+  .drawer header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .drawer h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+  .x{background:0;border:0;color:var(--mute);font-size:16px;padding:6px;line-height:0}
+  .x:hover{color:var(--bone)}
+  #libsearch{width:100%;padding:11px 12px;font-size:14px;border-radius:11px}
+  #libsearch::-webkit-search-cancel-button{filter:invert(.6)}
+  .drawnote{margin:12px 2px 4px;font-size:11px;color:var(--mute);letter-spacing:.02em}
+  .libwrap{flex:1;overflow-y:auto;margin:6px -4px 0;padding:0 4px}
+  .cat{display:flex;align-items:center;justify-content:space-between;
+    margin:16px 6px 4px;font-size:10px;font-weight:600;letter-spacing:.22em;
+    text-transform:uppercase;color:#5A6169}
+  .cat:first-child{margin-top:6px}
+  .cat span{font-weight:400;letter-spacing:.04em;font-variant-numeric:tabular-nums;opacity:.7}
+  .librow{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:12px;
+    border:1px solid transparent;cursor:pointer;transition:.14s}
+  .librow:hover{background:var(--panel);border-color:var(--line)}
+  .librow[data-on]{border-color:var(--ember);background:var(--panel)}
+  .librow .spine{width:3px;height:30px;border-radius:2px;flex:0 0 auto}
+  .librow .txt{flex:1;min-width:0}
+  .librow b{display:block;font-weight:500;font-size:14px;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  .librow i{font-style:normal;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+  .librow button{background:0;border:0;color:#4C535B;padding:6px;line-height:0;
+    font-size:13px;border-radius:7px;flex:0 0 auto}
+  .librow button:hover{background:#1B1F24;color:var(--bone)}
+  .librow .star[data-fav]{color:var(--ember)}
+  .librow .del:hover{color:var(--ember)}
+  .librow .star:disabled{opacity:.28;cursor:not-allowed}
+  .drawer footer{display:flex;gap:18px;padding-top:14px;margin-top:10px;
+    border-top:1px solid var(--line)}
+  .noresult{padding:26px 4px;font-size:12px;color:var(--mute);text-align:center;line-height:1.6}
+
+  /* ---- sheet ---- */
+  .sheet{position:fixed;inset:0;background:rgba(6,7,9,.72);backdrop-filter:blur(6px);
+    display:grid;place-items:center;padding:20px;z-index:11}
+  .sheet[hidden]{display:none}
+  .card{width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line-2);
+    border-radius:18px;padding:22px}
+  .card h2{margin:0 0 16px;font-size:14px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+  .card input{width:100%;padding:12px 13px;font-size:15px}
+  .sheetbtns{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .sheetbtns button{padding:11px 22px;font-size:14px}
 </style>
 </head>
 <body>
@@ -94,7 +194,7 @@
 
   <!-- DIAL -->
   <section>
-    <div class="dial">
+    <div class="dial" id="dial">
       <div class="glow" id="glow"></div>
       <svg viewBox="0 0 360 360" aria-hidden="true">
         <defs>
@@ -129,11 +229,26 @@
   <!-- PANEL -->
   <section>
     <div class="mast"><h1>Timgo</h1><span>segmented timer</span></div>
+    <p class="tagline">Your day, structured. Ready, set, <em>timgo</em>.</p>
+
+    <!-- PRESETS -->
+    <div class="presets">
+      <div class="phead">
+        <label>Presets</label>
+        <span class="pacts">
+          <button class="linky" id="openlib" hidden>All <span id="libcount"></span></button>
+          <button class="linky" id="savepreset">Save current</button>
+        </span>
+      </div>
+      <div class="chips" id="chips"></div>
+      <p class="empty" id="pempty">Build a timer below, then save it. Meditation, a recipe, an interval workout — reload it in one tap.</p>
+    </div>
 
     <div class="row">
-      <label for="total">Session</label>
-      <input id="total" type="number" min="1" value="60">
-      <span class="unit" style="font-size:11px;color:var(--mute)">min</span>
+      <span class="sessum">
+        <label>Session</label>
+        <b id="total">60m</b>
+      </span>
       <span class="tag idle" id="alloc"></span>
     </div>
 
@@ -141,11 +256,43 @@
     <button class="add" id="add">+ Add segment</button>
 
     <p class="note">
-      Each segment beeps and hands off to the next; three beeps end the session.<br>
+      Each segment beeps and hands off to the next; three beeps end the session.
+      Durations accept <kbd>45s</kbd>, <kbd>1:30</kbd>, <kbd>25</kbd> (minutes), or <kbd>2m30s</kbd>.<br>
       <kbd>Space</kbd> start / pause &nbsp;·&nbsp; <kbd>→</kbd> skip &nbsp;·&nbsp; <kbd>R</kbd> reset.
-      Screen stays awake while running.
+      Screen stays awake while running; the clock keeps true time if you switch away.
     </p>
   </section>
+</div>
+
+<!-- library drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Preset library">
+  <header>
+    <h2>Library</h2>
+    <button class="x" id="libclose" aria-label="Close library">✕</button>
+  </header>
+  <input id="libsearch" type="search" placeholder="Search presets" enterkeyhint="search">
+  <p class="drawnote">Star up to three to pin them to the main screen.</p>
+  <div class="libwrap" id="libwrap"></div>
+  <footer>
+    <button class="linky" id="exportp">Export</button>
+    <button class="linky" id="importp">Import</button>
+    <input type="file" id="importfile" accept="application/json" hidden>
+  </footer>
+</aside>
+
+<!-- name prompt -->
+<div class="sheet" id="sheet" hidden>
+  <div class="card">
+    <h2 id="sheetTitle">Save preset</h2>
+    <input id="pname" type="text" enterkeyhint="done" placeholder="Morning meditation" maxlength="40">
+    <p class="hint" id="phint" hidden></p>
+    <div class="sheetbtns">
+      <button class="ghost" id="pcancel">Cancel</button>
+      <button class="ghost" id="pfork" hidden>Save as new</button>
+      <button class="primary" id="pok">Save</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -154,15 +301,138 @@ const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,"0");
 const fmt = s => `${pad(Math.floor(s/60))}:${pad(s%60)}`;
 
-let segs, total, active = 0, left = 0, running = false, done = false, tick = null, lock = null, uid = 0;
+/* ---------- durations ----------
+   Segments store whole SECONDS in `s.sec`. The UI accepts several shorthands
+   and renders back the shortest unambiguous form. */
+const MIN_SEC = 1, MAX_SEC = 24*3600;   // 1 second .. 24 hours per segment
+
+function parseDur(raw){
+  const s = String(raw).trim().toLowerCase();
+  if(!s) return null;
+  let m, v = null;
+
+  if((m = s.match(/^(\d+):([0-5]?\d)$/)))        v = (+m[1])*60 + (+m[2]);   // 1:30
+  else if((m = s.match(/^(\d+)\s*m\s*(\d+)\s*s?$/))) v = (+m[1])*60 + (+m[2]);   // 2m30s
+  else if((m = s.match(/^(\d+)\s*s$/)))          v = +m[1];                 // 90s
+  else if((m = s.match(/^(\d+)\s*m$/)))          v = (+m[1])*60;            // 2m
+  else if((m = s.match(/^\d+$/)))                v = (+s)*60;               // bare = minutes
+
+  if(v === null || !Number.isFinite(v)) return null;
+  if(v < MIN_SEC) return null;                   // zero-length is not a segment
+  return Math.min(v, MAX_SEC);
+}
+
+function fmtDur(sec){
+  sec = Math.max(Math.round(+sec || 0), 0);
+  if(sec < 60) return `${sec}s`;
+  const m = Math.floor(sec/60), s = sec % 60;
+  return s ? `${m}:${String(s).padStart(2,"0")}` : `${m}m`;
+}
+
+/* seconds in segment i — now a passthrough, no unit conversion anywhere */
+const secsOf = i => Math.max(+segs[i]?.sec || MIN_SEC, MIN_SEC);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let segs, active = 0, left = 0, running = false, done = false, tick = null, lock = null, uid = 0;
+let presets = [], loaded = null;   // loaded = id of the preset currently in the editor
+let endsAt = null;                 // wall-clock ms when the active segment ends
+const totalSec = () => segs.reduce((a,s)=>a+(+s.sec||0), 0);   // Session = sum of segments
+
+/* v9 and earlier stored whole minutes in `s.min`. Upgrade in place, once, on read.
+   Idempotent: a record that already has `sec` is returned untouched. */
+const migrate = list => (list||[]).map(s =>
+  "sec" in s ? s : { ...s, sec: Math.max(+s.min||1, 1)*60, min: undefined });
 
 /* ---------- persistence (silently no-ops in sandboxed previews) ---------- */
-const save = () => { try{ localStorage.setItem("timgo", JSON.stringify({total,segs})) }catch{} };
+const save = () => { try{ localStorage.setItem("timgo", JSON.stringify({segs})) }catch{} };
 const load = () => {
-  try{ const d = JSON.parse(localStorage.getItem("timgo")); if(d?.segs?.length) return d }catch{}
-  return { total:60, segs:[{name:"Branch 1",min:20},{name:"Branch 2",min:30},{name:"Branch 3",min:10}] };
+  try{
+    const d = JSON.parse(localStorage.getItem("timgo"));
+    if(d?.segs?.length) return { segs: migrate(d.segs) };
+  }catch{}
+  return { segs:[{name:"Branch 1",sec:1200},{name:"Branch 2",sec:1800},{name:"Branch 3",sec:600}] };
 };
-const init = load(); total = init.total; segs = init.segs.map(s => ({...s, id:++uid}));
+const savePresets = () => { try{ localStorage.setItem("timgo.presets", JSON.stringify(presets)) }catch{} };
+const loadPresets = () => {
+  try{
+    const p = JSON.parse(localStorage.getItem("timgo.presets"));
+    if(Array.isArray(p)) return p.map(x => ({ ...x, total: undefined, segs: migrate(x.segs) }));
+  }catch{}
+  return [];
+};
+
+/* Monotonic ids. Date.now() alone collides when two records are created inside
+   the same millisecond — reachable via import, and via any future bulk operation. */
+let idSeq = 0;
+const newId = () => `${Date.now().toString(36)}-${(idSeq++).toString(36)}`;
+
+/* ---------- starter library ----------
+   Seeded once, on first run. A separate flag records that we've done it, so a
+   user who deletes every preset gets an empty library rather than these back. */
+const STARTER = [
+  // [name, hue, category, [[segment, seconds], ...]]
+
+  // Indian
+  ["Dal Tadka",2,"Indian",[["Boil toor dal",1200],["Onion, tomato, spices",480],["Simmer together",600],["Tadka, sizzling",45],["Rest",240]]],
+  ["Basmati Rice",1,"Indian",[["Soak",1200],["Boil",600],["Steam, lid on",300]]],
+  ["Rajma",0,"Indian",[["Pressure cook beans",1500],["Bhuna the masala",720],["Simmer to thicken",1200]]],
+  ["Chapati Dough",3,"Indian",[["Knead",480],["Rest, covered",1200],["Roll and cook",900]]],
+  ["Chana Masala",4,"Indian",[["Sauté aromatics",600],["Tomato base reduces",720],["Chickpeas simmer",1080]]],
+  ["Tadka",0,"Indian",[["Heat the ghee",90],["Mustard seeds pop",30],["Cumin, then chilli",20],["Pour over dal",15]]],
+
+  // Healthy
+  ["Sheet-Pan Salmon",0,"Healthy",[["Preheat oven",720],["Veg roasts alone",600],["Add salmon, finish",720],["Rest",180]]],
+  ["Overnight Oats Prep",5,"Healthy",[["Measure and stir",300],["Sit before fridge",600]]],
+  ["Roast Chicken + Veg",1,"Healthy",[["Preheat",900],["Roast, covered",1800],["Uncover, brown",1200],["Rest before carving",600]]],
+  ["Quinoa Bowl",2,"Healthy",[["Rinse and toast",240],["Simmer",900],["Steam off heat",300],["Assemble",360]]],
+  ["Slow-Cooked Beans",3,"Healthy",[["Sauté base",600],["Low simmer",3600],["Season and reduce",900]]],
+  ["Soft-Boiled Egg",4,"Healthy",[["Water to a boil",300],["Boil, gently",390],["Ice bath",120]]],
+
+  // Focus
+  ["Pomodoro ×4",0,"Focus",[["Focus 1",1500],["Break",300],["Focus 2",1500],["Break",300],["Focus 3",1500],["Break",300],["Focus 4",1500],["Long break",900]]],
+  ["Deep Work Block",3,"Focus",[["Clear the desk",300],["Deep work",5400],["Walk away",900]]],
+  ["Inbox Zero",1,"Focus",[["Triage, no replies",600],["Answer the quick ones",1200],["Two hard ones",1200]]],
+  ["Morning Startup",5,"Focus",[["Review calendar",300],["Pick three priorities",600],["First task, no email",2700]]],
+  ["Weekly Review",4,"Focus",[["Empty the inbox",900],["Last week, honestly",1200],["Next week's three",1200],["Tidy the system",600]]],
+
+  // Hobby
+  ["Guitar Practice",2,"Hobby",[["Warm-up scales",600],["Technique drill",1200],["Learn the piece",1500],["Play for fun",600]]],
+  ["Language Study",0,"Hobby",[["Review old cards",900],["New vocabulary",1200],["Listen, no subtitles",900],["Speak aloud",600]]],
+  ["Strength Session",1,"Hobby",[["Warm-up",600],["Compound lifts",1800],["Accessory work",900],["Stretch",600]]],
+  ["Bread Bulk Ferment",3,"Hobby",[["Autolyse",1800],["Fold, then wait",1800],["Fold again, wait",1800],["Final rise",3600]]],
+  ["Tabata",5,"Hobby",[["Warm-up",180],["Work",20],["Rest",10],["Work",20],["Rest",10],["Work",20],["Rest",10],["Work",20],["Cool down",180]]],
+  ["Pour Over",4,"Hobby",[["Rinse the filter",30],["Bloom",45],["First pour",30],["Draw down",60],["Second pour",30],["Finish",90]]],
+  ["Plank Ladder",1,"Hobby",[["Plank",30],["Rest",15],["Plank",45],["Rest",15],["Plank",60],["Rest",15],["Plank",30]]],
+
+  // Creative
+  ["Morning Pages",5,"Creative",[["Write without stopping",1800],["Sit with it",300]]],
+  ["Sketch Session",4,"Creative",[["Warm-up gestures",600],["Study from life",1500],["Draw from memory",1200]]],
+  ["Writing Sprint",2,"Creative",[["Outline, loosely",600],["Draft, no editing",2700],["Step away",600],["Read it back",900]]],
+  ["Gesture Drawing",0,"Creative",[["30-second pose",30],["30-second pose",30],["1-minute pose",60],["1-minute pose",60],["2-minute pose",120],["5-minute pose",300]]],
+];
+
+const SEED_FLAG = "timgo.seeded";
+function seedLibrary(){
+  try{ if(localStorage.getItem(SEED_FLAG)) return false; }catch{ return false; }
+  if(presets.length) { try{ localStorage.setItem(SEED_FLAG,"1") }catch{} return false; }
+
+  // STARTER durations are written in seconds
+  presets = STARTER.map(([name, hue, cat, segs]) => ({
+    id: newId(), name, hue, cat, fav: false,
+    segs: segs.map(([n,sec]) => ({ name:n, sec })),
+  }));
+  // pin a useful three so the rail isn't arbitrary
+  ["Pomodoro ×4","Basmati Rice","Morning Pages"].forEach(n => {
+    const p = presets.find(x => x.name === n); if(p) p.fav = true;
+  });
+  savePresets();
+  try{ localStorage.setItem(SEED_FLAG,"1") }catch{}
+  return true;
+}
+
+const init = load(); segs = init.segs.map(s => ({...s, id:++uid}));
+presets = loadPresets();
+seedLibrary();
 
 /* ---------- audio ---------- */
 let ac;
@@ -183,6 +453,27 @@ function beep(times = 1, freq = 880){
   if(navigator.vibrate) navigator.vibrate(times>1 ? [180,90,180,90,180] : 200);
 }
 
+/* An AudioContext can only start from a user gesture. Call this on Start. */
+function unlockAudio(){
+  try{
+    ac ||= new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === "suspended") ac.resume();
+  }catch{}
+}
+
+/* A backgrounded tab may not be heard. A notification will be. Best-effort only.
+   `Notification` is absent in some webviews and in insecure contexts, so test the
+   binding with `in` — `Notification?.x` still throws ReferenceError if it's undeclared. */
+const canNotify = () => "Notification" in window;
+
+function notify(body){
+  try{
+    if(document.visibilityState === "visible") return;   // you're looking at it
+    if(canNotify() && Notification.permission === "granted")
+      new Notification("Timgo", { body, icon:"icon-192.png", tag:"timgo", silent:false });
+  }catch{}
+}
+
 /* ---------- wake lock ---------- */
 async function wake(on){
   try{
@@ -190,7 +481,9 @@ async function wake(on){
     if(!on && lock){ lock.release(); lock = null; }
   }catch{}
 }
-document.addEventListener("visibilitychange", () => { if(document.visibilityState==="visible" && running) wake(true) });
+document.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "visible" && running){ wake(true); sync(); render(); }
+});
 
 /* ---------- static dial furniture ---------- */
 (function ticks(){
@@ -212,10 +505,10 @@ const arc = (r,a0,a1) => {
   return `M${x0} ${y0}A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${x1} ${y1}`;
 };
 function drawChain(){
-  const sum = segs.reduce((a,s)=>a+Math.max(+s.min||0,0),0) || 1;
+  const sum = segs.reduce((a,s)=>a+Math.max(+s.sec||0,0),0) || 1;
   let a = 0, g = "";
   segs.forEach((s,i) => {
-    const span = (Math.max(+s.min||0,0)/sum) * 2*Math.PI;
+    const span = (Math.max(+s.sec||0,0)/sum) * 2*Math.PI;
     const gap  = 0.022;
     const past = i < active || done, live = i === active && !done;
     g += `<path d="${arc(158, a+gap/2, a+span-gap/2)}" stroke="${HUES[i%6]}"
@@ -225,38 +518,57 @@ function drawChain(){
   $("chain").innerHTML = g;
 }
 
+/* ---------- list: rebuilt ONLY when segments are added or removed.
+   Never touch innerHTML while a field has focus, or the keyboard dismisses. ---------- */
+function buildList(){
+  $("list").innerHTML = segs.map((s,i)=>`
+    <div class="seg" data-row="${s.id}">
+      <span class="dot" style="background:${HUES[i%6]}"></span>
+      <input type="text" enterkeyhint="done" value="${esc(s.name)}" data-n="${s.id}">
+      <input class="dur" type="text" inputmode="text" enterkeyhint="done"
+             value="${fmtDur(s.sec)}" data-m="${s.id}"
+             aria-label="Duration for ${esc(s.name)}"
+             title="45s · 1:30 · 25m · 2m30s">
+      <button class="kill" data-x="${s.id}" aria-label="Remove segment">✕</button>
+    </div>`).join("");
+}
+function paintRows(){
+  segs.forEach((s,i)=>{
+    const row = $("list").querySelector(`[data-row="${s.id}"]`);
+    if(!row) return;
+    row.toggleAttribute("data-live", !done && i===active && running);
+    row.toggleAttribute("data-past", i<active || done);
+  });
+}
+
 /* ---------- render ---------- */
 function render(){
-  const allocated = segs.reduce((a,s)=>a+(+s.min||0),0), rem = total - allocated;
+  $("total").textContent = fmtDur(totalSec());
   const tag = $("alloc");
-  tag.className = "tag " + (rem===0?"ok":rem<0?"over":"idle");
-  tag.textContent = rem===0 ? "fully allocated" : rem>0 ? `${rem} min unallocated` : `${-rem} min over`;
+  tag.className = "tag idle";
+  tag.textContent = `${segs.length} segment${segs.length===1?"":"s"}`;
 
-  $("list").innerHTML = segs.map((s,i)=>`
-    <div class="seg" ${!done&&i===active&&running?"data-live":""} ${i<active||done?"data-past":""}>
-      <span class="dot" style="background:${HUES[i%6]}"></span>
-      <input type="text" value="${s.name.replace(/"/g,"&quot;")}" data-n="${s.id}">
-      <input type="number" min="1" value="${s.min}" data-m="${s.id}">
-      <span class="unit">min</span>
-      <button class="kill" data-x="${s.id}" aria-label="Remove ${s.name}">✕</button>
-    </div>`).join("");
+  paintRows();
 
-  const cur = segs[active] || {name:"—",min:0};
-  const segSec = Math.max((+cur.min||0)*60, 1);
+  const cur = segs[active] || {name:"—",sec:0};
+  const segSec = secsOf(active);
   const pct = done ? 1 : (segSec - left)/segSec;
   const C = 2*Math.PI*126;
   $("prog").setAttribute("stroke-dasharray", C);
   $("prog").setAttribute("stroke-dashoffset", C - pct*C);
   $("prog").setAttribute("stroke", HUES[active%6]);
   $("hand").setAttribute("transform", `rotate(${pct*360} 180 180)`);
-  $("hand").style.opacity = running ? 1 : .25;
   $("glow").style.background = HUES[active%6];
 
-  $("eyebrow").textContent = done ? "Complete" : cur.name;
+  const paused = !running && !done && (active > 0 || left < secsOf(active));
+  $("hand").style.opacity = running ? 1 : paused ? .55 : .25;
+  $("dial").toggleAttribute("data-paused", paused);
+  $("eyebrow").toggleAttribute("data-paused", paused);
+  $("eyebrow").textContent = done ? "Complete" : paused ? "Paused" : cur.name;
   $("clock").textContent   = fmt(left);
   $("sub").textContent     = done ? "All segments finished" : `Segment ${active+1} of ${segs.length}`;
 
-  const ahead = segs.slice(active+1).reduce((a,s)=>a+(+s.min||0)*60,0);
+  const ahead = segs.slice(active+1).reduce((a,s)=>a+(+s.sec||0),0);
   $("totalbar").textContent = done ? "SESSION COMPLETE" : `${fmt(left+ahead)} SESSION REMAINING`;
 
   $("go").textContent  = running ? "❚❚ Pause" : done ? "▶ Start" : "▶ Start";
@@ -265,49 +577,436 @@ function render(){
   drawChain();
 }
 
-/* ---------- engine ---------- */
-function stop(){ clearInterval(tick); tick=null; running=false; wake(false); }
-function advance(){
-  if(active+1 >= segs.length){ beep(3,720); stop(); done=true; left=0; render(); return; }
-  beep(1); active++; left = (+segs[active].min||1)*60; render();
+/* ---------- presets ---------- */
+const sumOf = p => p.segs.reduce((a,s)=>a+(+s.sec||0),0);
+const MAX_FAV = 3;
+
+/* the rail shows starred presets; before anything is starred, the newest few */
+const favs = () => {
+  const starred = presets.filter(p => p.fav);
+  if(starred.length) return starred.slice(0, MAX_FAV);
+  return presets.slice(-MAX_FAV).reverse();
+};
+
+function drawPresets(){
+  const rail = favs();
+  $("pempty").hidden = presets.length > 0;
+  $("openlib").hidden = presets.length <= MAX_FAV;
+  $("libcount").textContent = presets.length ? `(${presets.length})` : "";
+
+  $("chips").innerHTML = rail.map(p => `
+    <div class="chip" data-p="${p.id}" ${loaded===p.id?"data-on":""}
+         role="button" tabindex="0"
+         title="${esc(p.name)} — ${sumOf(p)} min, ${p.segs.length} segments">
+      <span class="chiptext">
+        <b>${esc(p.name)}</b>
+        <i>${sumOf(p)} min · ${p.segs.length} seg</i>
+      </span>
+      <span class="chipacts">
+        <button class="rm" data-r="${p.id}" aria-label="Rename ${esc(p.name)}" title="Rename">✎</button>
+        <button class="rm" data-d="${p.id}" aria-label="Delete ${esc(p.name)}" title="Delete">✕</button>
+      </span>
+    </div>`).join("");
+
+  rail.forEach(p => {
+    const el = $("chips").querySelector(`[data-p="${p.id}"]`);
+    if(el) el.style.borderLeftColor = HUES[(p.hue ?? 0) % 6];
+  });
+
+  if(!$("drawer").hidden) drawLibrary();
 }
+
+/* ---------- library drawer ---------- */
+const CAT_ORDER = ["Yours","Focus","Indian","Healthy","Hobby","Creative"];
+
+function drawLibrary(){
+  const q = $("libsearch").value.trim().toLowerCase();
+  const list = q ? presets.filter(p => p.name.toLowerCase().includes(q)) : presets;
+  const starCount = presets.filter(p => p.fav).length;
+
+  if(!list.length){
+    $("libwrap").innerHTML = `<p class="noresult">${
+      presets.length ? "Nothing matches that." : "No presets yet.<br>Build a timer and save it."
+    }</p>`;
+    return;
+  }
+
+  const row = p => {
+    const locked = !p.fav && starCount >= MAX_FAV;
+    return `
+    <div class="librow" data-p="${p.id}" ${loaded===p.id?"data-on":""} role="button" tabindex="0">
+      <span class="spine" style="background:${HUES[(p.hue ?? 0)%6]}"></span>
+      <span class="txt">
+        <b>${esc(p.name)}</b>
+        <i>${sumOf(p)} min · ${p.segs.length} seg</i>
+      </span>
+      <button class="star" data-f="${p.id}" ${p.fav?"data-fav":""} ${locked?"disabled":""}
+        title="${p.fav ? "Unpin" : locked ? `Only ${MAX_FAV} pinned at a time` : "Pin to main screen"}"
+        aria-label="${p.fav?"Unpin":"Pin"} ${esc(p.name)}">${p.fav?"★":"☆"}</button>
+      <button class="rm" data-r="${p.id}" title="Rename" aria-label="Rename ${esc(p.name)}">✎</button>
+      <button class="del" data-d="${p.id}" title="Delete" aria-label="Delete ${esc(p.name)}">✕</button>
+    </div>`;
+  };
+
+  // searching flattens the groups — you want hits, not headings
+  if(q){ $("libwrap").innerHTML = list.map(row).join(""); return; }
+
+  const groups = new Map();
+  list.forEach(p => {
+    const c = p.cat || "Yours";
+    if(!groups.has(c)) groups.set(c, []);
+    groups.get(c).push(p);
+  });
+
+  const order = [...CAT_ORDER.filter(c => groups.has(c)),
+                 ...[...groups.keys()].filter(c => !CAT_ORDER.includes(c))];
+
+  $("libwrap").innerHTML = order.map(c =>
+    `<h3 class="cat">${esc(c)}<span>${groups.get(c).length}</span></h3>` +
+    groups.get(c).map(row).join("")
+  ).join("");
+}
+
+function openLib(){
+  $("scrim").hidden = false; $("drawer").hidden = false;
+  $("libsearch").value = ""; drawLibrary();
+}
+function closeLib(){ $("scrim").hidden = true; $("drawer").hidden = true; }
+
+$("openlib").onclick = openLib;
+$("libclose").onclick = closeLib;
+$("scrim").onclick = closeLib;
+$("libsearch").addEventListener("input", drawLibrary);
+
+$("libwrap").addEventListener("click", e => {
+  const star = e.target.closest("[data-f]");
+  if(star){
+    e.stopPropagation();
+    const p = presets.find(x => x.id === star.dataset.f);
+    if(!p.fav && presets.filter(x=>x.fav).length >= MAX_FAV) return;
+    p.fav = !p.fav;
+    savePresets(); drawPresets(); drawLibrary();
+    return;
+  }
+  const ren = e.target.closest("[data-r]");
+  if(ren){ e.stopPropagation(); openSheet("rename", ren.dataset.r); return; }
+
+  const del = e.target.closest("[data-d]");
+  if(del){
+    e.stopPropagation();
+    presets = presets.filter(p => p.id !== del.dataset.d);
+    if(loaded === del.dataset.d) loaded = null;
+    savePresets(); drawPresets(); drawLibrary();
+    return;
+  }
+  const row = e.target.closest("[data-p]");
+  if(row){ applyPreset(row.dataset.p); closeLib(); }
+});
+$("libwrap").addEventListener("keydown", e => {
+  const row = e.target.closest("[data-p]");
+  if(row && (e.key === "Enter" || e.key === " ")){
+    e.preventDefault(); applyPreset(row.dataset.p); closeLib();
+  }
+});
+
+/* ---------- export / import ---------- */
+$("exportp").onclick = () => {
+  const blob = new Blob([JSON.stringify({app:"timgo", version:1, presets}, null, 2)],
+                        {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `timgo-presets-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+$("importp").onclick = () => $("importfile").click();
+$("importfile").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    const incoming = Array.isArray(data) ? data : data.presets;
+    if(!Array.isArray(incoming)) throw new Error("shape");
+
+    let added = 0;
+    incoming.forEach(p => {
+      if(!p?.name || !Array.isArray(p.segs) || !p.segs.length) return;
+      const segsClean = p.segs.map(s => ({
+        name: String(s?.name || "Branch").slice(0,40),
+        sec: Math.min(Math.max(+s?.sec || (+s?.min || 1)*60, MIN_SEC), MAX_SEC),
+      }));   // cap at 24h per segment
+      const clean = {
+        id: newId(),
+        name: String(p.name).slice(0,40),
+        hue: ((+p.hue || 0) % 6 + 6) % 6,
+        cat: CAT_ORDER.includes(p.cat) ? p.cat : undefined,   // no arbitrary headings
+        fav: false,
+        segs: segsClean
+      };
+      // same name → keep both, disambiguate
+      if(presets.some(x => x.name.toLowerCase() === clean.name.toLowerCase()))
+        clean.name = `${clean.name} (imported)`.slice(0,40);
+      presets.push(clean);
+    });
+    savePresets(); drawPresets(); drawLibrary();
+    beep(1, 1180);
+  }catch{
+    $("libwrap").insertAdjacentHTML("afterbegin",
+      `<p class="noresult" style="color:var(--ember)">That file isn't a Timgo export.</p>`);
+  }
+  e.target.value = "";
+});
+
+/* the sheet handles three jobs: save, save-as-new, rename */
+let sheetMode = null, sheetTarget = null;
+
+function openSheet(mode, target){
+  sheetMode = mode; sheetTarget = target;
+  const p = presets.find(x => x.id === target);
+  const isRename = mode === "rename";
+
+  $("sheetTitle").textContent = isRename ? "Rename preset" : "Save preset";
+  $("pname").value = isRename ? p.name : (presets.find(x=>x.id===loaded)?.name || "");
+  $("pok").textContent = isRename ? "Rename" : "Save";
+  $("pfork").hidden = isRename || !loaded;
+  $("sheet").hidden = false;
+  checkName();
+  setTimeout(()=>{ $("pname").focus(); $("pname").select(); }, 40);
+}
+function closeSheet(){ $("sheet").hidden = true; sheetMode = null; sheetTarget = null; }
+
+/* live warning when the typed name collides with an existing preset */
+function checkName(){
+  const raw = $("pname").value.trim();
+  const name = raw.toLowerCase();
+  const clash = presets.find(p => p.name.toLowerCase() === name && p.id !== sheetTarget);
+  const hint = $("phint");
+
+  if(raw && clash && sheetMode === "rename"){
+    hint.hidden = false;
+    hint.textContent = "That name is already taken.";
+  } else if(raw && clash && sheetMode === "save"){
+    hint.hidden = false;
+    hint.textContent = `Replaces the existing “${clash.name}”.`;
+  } else hint.hidden = true;
+
+  $("pok").disabled   = !raw || (sheetMode === "rename" && !!clash);
+  $("pfork").disabled = !raw || !!clash;   // a fork must have a fresh name
+}
+$("pname").addEventListener("input", checkName);
+
+const snapshot = name => ({
+  name,
+  segs: segs.map(s => ({ name:s.name, sec: Math.max(+s.sec||MIN_SEC, MIN_SEC) }))
+});
+
+function commit(fork){
+  const name = $("pname").value.trim();
+  if(!name) return;
+
+  if(sheetMode === "rename"){
+    const p = presets.find(x => x.id === sheetTarget);
+    const clash = presets.find(x => x.name.toLowerCase()===name.toLowerCase() && x.id!==p.id);
+    if(clash) return;                 // guarded by disabled button, belt and braces
+    p.name = name;
+  } else if(fork){
+    const p = {...snapshot(name), id: newId(), hue: presets.length % 6, fav:false};
+    presets.push(p); loaded = p.id;
+  } else {
+    const clash = presets.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if(clash){ Object.assign(clash, snapshot(name), {id:clash.id, hue:clash.hue}); loaded = clash.id; }
+    else { const p = {...snapshot(name), id: newId(), hue: presets.length % 6, fav:false};
+           presets.push(p); loaded = p.id; }
+  }
+  closeSheet(); savePresets(); drawPresets(); beep(1, 1180);
+}
+
+$("savepreset").onclick = () => openSheet("save", null);
+$("pok").onclick   = () => commit(false);
+$("pfork").onclick = () => commit(true);
+$("pcancel").onclick = closeSheet;
+$("sheet").addEventListener("click", e => { if(e.target === $("sheet")) closeSheet(); });
+$("pname").addEventListener("keydown", e => {
+  if(e.key === "Enter"){ e.preventDefault(); if(!$("pok").disabled) $("pok").click(); }
+  if(e.key === "Escape") closeSheet();
+});
+
+function applyPreset(id){
+  const p = presets.find(x => x.id === id);
+  if(!p) return;
+
+  // Loading a preset wipes the current session. Never do that silently mid-run.
+  if(running || (!done && active > 0)){
+    const elapsed = fmt(segs.slice(0, active).reduce((a,s)=>a+(+s.sec||0), 0)
+                        + (secsOf(active) - left));
+    if(!confirm(`A session is in progress (${elapsed} elapsed).\n\nLoad “${p.name}” and discard it?`))
+      return;
+  }
+
+  segs = p.segs.map(s => ({...s, id:++uid}));
+  loaded = id;
+  save(); buildList(); reset(); drawPresets();
+}
+
+$("chips").addEventListener("click", e => {
+  const ren = e.target.closest("[data-r]");
+  if(ren){ e.stopPropagation(); openSheet("rename", ren.dataset.r); return; }
+
+  const del = e.target.closest("[data-d]");
+  if(del){
+    e.stopPropagation();
+    presets = presets.filter(p => p.id !== del.dataset.d);
+    if(loaded === del.dataset.d) loaded = null;
+    savePresets(); drawPresets();
+    return;
+  }
+  const chip = e.target.closest("[data-p]");
+  if(chip) applyPreset(chip.dataset.p);
+});
+$("chips").addEventListener("keydown", e => {
+  const chip = e.target.closest("[data-p]");
+  if(chip && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); applyPreset(chip.dataset.p); }
+});
+
+/* editing the timer detaches it from the loaded preset */
+function touched(){ if(loaded !== null){ loaded = null; drawPresets(); } }
+
+/* ---------- engine ----------
+   endsAt (a wall-clock timestamp) is the source of truth; `left` is derived.
+   A throttled or suspended tab therefore stays accurate: on resume we compute
+   where we really are and replay any segment boundaries we slept through. */
+function stop(){
+  clearInterval(tick); tick = null; running = false; endsAt = null; wake(false);
+}
+
+/* advance one segment. `silent` suppresses the beep when catching up on
+   boundaries that elapsed while the tab was asleep. */
+function advance(silent){
+  if(active + 1 >= segs.length){
+    if(!silent) beep(3, 720);
+    stop(); done = true; left = 0; render(); notify("Session complete");
+    return false;
+  }
+  active++;
+  left = secsOf(active);
+  if(!silent){ beep(1); notify(`${segs[active].name} — ${fmtDur(segs[active].sec)}`); }
+  return true;
+}
+
+/* Reconcile against the wall clock. Returns nothing; mutates active/left/done. */
+function sync(){
+  if(!running || endsAt === null) return;
+  // ceil, not round: a segment is not over until the wall clock says so.
+  // Rounding fires the beep up to half a poll early — invisible at 20 min,
+  // audible at 20 s.
+  let remain = Math.ceil((endsAt - Date.now()) / 1000);
+
+  // roll forward through however many segments actually finished
+  let crossed = 0;
+  while(remain <= 0 && running && !done){
+    crossed++;
+    if(!advance(crossed > 1)) return;    // beep once, not once per skipped segment
+    remain += secsOf(active);
+    endsAt = Date.now() + remain * 1000;
+  }
+  left = Math.max(remain, 0);
+}
+
+function tickOnce(){ sync(); render(); }
+
 function toggle(){
   if(done) return;
-  if(running){ stop(); render(); return; }
-  beep(0); running = true; wake(true);
-  tick = setInterval(()=>{ left--; if(left<=0){ advance(); if(!running) return; } render(); },1000);
+  if(running){                       // pause: bank the remaining time
+    left = Math.max(Math.round((endsAt - Date.now()) / 1000), 0);
+    stop(); render(); return;
+  }
+  unlockAudio();
+  running = true;
+  endsAt = Date.now() + left * 1000;
+  wake(true);
+  tick = setInterval(tickOnce, 100);  // sub-second segments need a tight poll; sync is idempotent
   render();
 }
-function reset(){ stop(); done=false; active=0; left=(+segs[0]?.min||0)*60; render(); }
+
+function skip(){
+  if(!running) return;
+  if(advance(false)) endsAt = Date.now() + left * 1000;
+  render();
+}
+
+function reset(){ stop(); done=false; active=0; left=secsOf(0); render(); }
+
+/* rewind the clock without rebuilding the list — safe to call while typing */
+function rewind(){ if(!running && !done){ active=0; left=secsOf(0); } render(); }
 
 /* ---------- events ---------- */
-$("go").onclick = toggle;
-$("skip").onclick = () => running && advance();
-$("reset").onclick = reset;
-$("total").oninput = e => { total = +e.target.value||0; save(); render(); };
-$("add").onclick = () => {
-  const rem = total - segs.reduce((a,s)=>a+(+s.min||0),0);
-  segs.push({id:++uid, name:`Branch ${segs.length+1}`, min: rem>0?rem:5});
-  save(); reset();
+$("go").onclick = () => {
+  try{
+    if(!running && !done && canNotify() && Notification.permission === "default")
+      Notification.requestPermission().catch(()=>{});
+  }catch{}
+  toggle();   // never let a permission prompt block starting the timer
 };
+$("skip").onclick = skip;
+$("reset").onclick = reset;
+
+$("add").onclick = () => {
+  segs.push({id:++uid, name:`Branch ${segs.length+1}`, sec: 300});
+  save(); touched(); buildList(); reset();
+};
+
+/* Typing updates the model and repaints the dial only.
+   The list DOM is left alone, so focus and the keyboard survive.
+   A half-typed duration ("1:" , "9") simply doesn't parse; we keep the last good
+   value in the model and let the field hold whatever the user is typing. */
 $("list").addEventListener("input", e => {
-  const n = e.target.dataset.n, m = e.target.dataset.m;
-  if(n) segs.find(s=>s.id==n).name = e.target.value;
-  if(m){ segs.find(s=>s.id==m).min = +e.target.value||0; if(!running) reset(); }
-  save(); if(n) drawChain();
+  const {n, m} = e.target.dataset;
+  if(n){ segs.find(s=>s.id==n).name = e.target.value; }
+  if(m){
+    const parsed = parseDur(e.target.value);
+    e.target.classList.toggle("bad", e.target.value.trim() !== "" && parsed === null);
+    if(parsed !== null){
+      segs.find(s=>s.id==m).sec = parsed;
+      rewind();
+    }
+  }
+  save();
+  touched();
+  drawChain();
+});
+
+/* On leaving the field, snap it to the canonical rendering of whatever we stored.
+   An unparseable entry reverts rather than silently becoming 1 second. */
+$("list").addEventListener("focusout", e => {
+  const m = e.target.dataset.m;
+  if(!m) return;
+  const s = segs.find(s=>s.id==m);
+  e.target.classList.remove("bad");
+  e.target.value = fmtDur(s.sec);
+  save(); rewind(); drawChain();
+});
+
+/* Enter dismisses the keyboard instead of submitting anything. */
+$("list").addEventListener("keydown", e => {
+  if(e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur();
 });
 $("list").addEventListener("click", e => {
   const x = e.target.closest("[data-x]");
-  if(x && segs.length>1){ segs = segs.filter(s=>s.id!=x.dataset.x); save(); reset(); }
+  if(x && segs.length>1){ segs = segs.filter(s=>s.id!=x.dataset.x); save(); touched(); buildList(); reset(); }
 });
 addEventListener("keydown", e => {
+  if(!$("sheet").hidden){ if(e.key==="Escape") closeSheet(); return; }
+  if(!$("drawer").hidden){ if(e.key==="Escape") closeLib(); return; }
   if(e.target.tagName === "INPUT") return;
   if(e.code==="Space"){ e.preventDefault(); toggle(); }
-  if(e.key==="ArrowRight" && running) advance();
+  if(e.key==="ArrowRight") skip();
   if(e.key.toLowerCase()==="r") reset();
 });
 
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+buildList();
+drawPresets();
 reset();
 </script>
 </body>

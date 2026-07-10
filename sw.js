@@ -1,4 +1,4 @@
-const CACHE = "timgo-v1";
+const CACHE = "timgo-v10";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./favicon.png", "./icon-maskable-192.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", e => {
