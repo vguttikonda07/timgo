@@ -47,6 +47,35 @@ seeds to pop).
 
 Seeding happens exactly once. Delete them all and they stay deleted.
 
+## Background & silent mode
+
+Beeps land **on time even when Timgo is in the background**: the moment the app is
+hidden mid-session, every remaining boundary is pre-scheduled on the device's audio
+clock — which, unlike JavaScript timers, is never throttled — and a sub-audible tone
+keeps the pipeline awake. Return to the app and it hands control back seamlessly;
+nothing ever beeps twice. Sounds play on **media volume**, so Android's silent/vibrate
+mode doesn't mute them — but media volume at zero, or DND configured to mute media,
+will (no app can override your volume, by design). Battery cost applies only while a
+session is running in the background, comparable to playing a silent song.
+
+## Sharing presets
+
+Every preset has a share button (the ⤴ on its chip or library row). It builds a link that
+IS the preset — segments, durations, sounds, colour — encoded in the URL fragment, so it
+opens instantly from the offline cache and touches no server. On phones it opens the
+native share sheet, straight into any chat. The recipient gets one prompt — "Add
+'Sunday Rajma'? 47m · 4 segments" — and it lands in their library, loaded and ready.
+Links survive chat-app mangling (trailing punctuation is stripped), collide politely
+(a duplicate name arrives as "… (shared)"), and pass through the same sanitiser as file
+imports: hostile links get clamped, not executed.
+
+## Themes
+
+Two looks, one app: **Ember** (the original editorial dark) and **Pop** — dopamine hues
+on warm paper, candy chain ring, round caps. Pick in the Theme control below the segment
+list; the choice persists. Every color runs through CSS custom properties, so a new theme
+is one variable block plus six hues.
+
 ## While it runs
 
 **+1m** stretches the segment on the clock. **⏮** restarts it (or steps back if you just

@@ -14,14 +14,31 @@
 <title>Timgo — segmented timer</title>
 <style>
   :root{
-    --ink:#0B0C0E; --panel:#121417; --line:#22262B; --line-2:#2E343B;
-    --bone:#EDE8DF; --mute:#7C848E; --ember:#FF5A2B;
+    --ink:#0B0C0E; --grad:#16191E; --panel:#121417; --panel-2:#0F1114;
+    --hover:#1B1F24; --deep:#0E1013;
+    --line:#22262B; --line-2:#2E343B;
+    --bone:#EDE8DF; --mute:#7C848E; --dim:#4C535B; --cat:#5A6169;
+    --accent:#FF5A2B; --on-accent:#140A05; --danger:#FF5A2B; --ok:#6E9C4A;
+    --ring:#1A1D22; --tick:#23272C; --tick-big:#3A4048;
+    --scrim:rgba(6,7,9,.7); --glow-op:.30;
   }
+  /* ── Pop: dopamine theme. Sticker-bright hues on warm paper; electric
+     violet carries the brand, candy ring, round caps on the chain. ── */
+  [data-theme="pop"]{
+    --ink:#F7F3EC; --grad:#FFFDF8; --panel:#FFFFFF; --panel-2:#FBF8F1;
+    --hover:#F1EBFF; --deep:#FFFFFF;
+    --line:#E7DFD2; --line-2:#D8CDBA;
+    --bone:#221B33; --mute:#7A7290; --dim:#A79CB8; --cat:#8D84A3;
+    --accent:#7C5CFF; --on-accent:#FFFFFF; --danger:#D92D20; --ok:#1E9E5A;
+    --ring:#EBE4D6; --tick:#E2D9C8; --tick-big:#C9BEA6;
+    --scrim:rgba(34,27,51,.38); --glow-op:.16;
+  }
+  [data-theme="pop"] #chain path{stroke-linecap:round}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;overflow-x:hidden}   /* no horizontal page scroll, ever */
   body{
     background:
-      radial-gradient(120% 80% at 50% -10%, #16191E 0%, var(--ink) 55%) fixed,
+      radial-gradient(120% 80% at 50% -10%, var(--grad) 0%, var(--ink) 55%) fixed,
       var(--ink);
     color:var(--bone);
     font:400 16px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -41,11 +58,11 @@
   /* ---- dial ---- */
   .dial{position:relative;display:grid;place-items:center;justify-self:center}
   .dial svg{display:block;width:min(78vw,360px);height:auto}
-  .glow{position:absolute;inset:14%;border-radius:50%;filter:blur(46px);opacity:.30;
+  .glow{position:absolute;inset:14%;border-radius:50%;filter:blur(46px);opacity:var(--glow-op);
     transition:background .6s ease;pointer-events:none}
   .face{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:2px}
   .eyebrow{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--mute)}
-  .eyebrow[data-paused]{color:var(--ember);animation:blink 1.6s ease-in-out infinite}
+  .eyebrow[data-paused]{color:var(--accent);animation:blink 1.6s ease-in-out infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
   .dial[data-paused] .glow{opacity:.06}
   .dial[data-paused] svg{filter:saturate(.35)}
@@ -58,15 +75,26 @@
   .ctrl{display:flex;gap:9px;justify-content:center;align-items:center;margin-top:28px;
     flex-wrap:wrap;padding:0 4px}
   .ctrl .icon{padding:12px 15px;font-size:15px;line-height:1}
+  .ringbase{stroke:var(--ring)}
+  #ticks .tk{stroke:var(--tick)}
+  #ticks .tkb{stroke:var(--tick-big)}
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);
+    transform:translateX(-50%);z-index:12;background:var(--panel);color:var(--bone);
+    border:1px solid var(--accent);border-radius:999px;padding:10px 18px;
+    font-size:13px;letter-spacing:.02em;max-width:86vw;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;animation:rise .22s ease}
+  .toast[hidden]{display:none}
+  @keyframes rise{from{transform:translate(-50%,10px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+  .librow .shr:hover{color:var(--accent)}
   .cmsg{margin:0 0 4px;font-size:13.5px;color:var(--bone);line-height:1.6}
   button{font:inherit;font-size:14px;cursor:pointer;border-radius:999px;
     display:inline-flex;align-items:center;gap:8px;transition:.16s}
-  .primary{background:var(--ember);color:#140A05;font-weight:600;border:0;padding:13px 30px}
+  .primary{background:var(--accent);color:var(--on-accent);font-weight:600;border:0;padding:13px 30px}
   .primary:hover{filter:brightness(1.1)}
   .ghost{background:transparent;color:var(--bone);border:1px solid var(--line-2);padding:12px 20px}
   .ghost:hover{background:var(--panel)}
   button:disabled{opacity:.35;cursor:not-allowed}
-  button:focus-visible{outline:2px solid var(--ember);outline-offset:3px}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
   /* ---- panel ---- */
   .row{display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
@@ -77,17 +105,17 @@
   input{font:inherit;background:var(--panel);color:var(--bone);
     border:1px solid var(--line);border-radius:10px;padding:9px 11px;
     font-variant-numeric:tabular-nums}
-  input:focus{outline:0;border-color:var(--ember)}
+  input:focus{outline:0;border-color:var(--accent)}
   input[type=number]{width:74px;text-align:right;-moz-appearance:textfield}
   input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
   .tag{font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
-  .ok{color:#6E9C4A} .over{color:var(--ember)} .idle{color:var(--mute)}
+  .ok{color:var(--ok)} .over{color:var(--accent)} .idle{color:var(--mute)}
 
   .seg{display:block;padding:11px 12px;margin-top:8px;
-    border:1px solid var(--line);border-radius:14px;background:#0F1114;transition:.2s}
+    border:1px solid var(--line);border-radius:14px;background:var(--panel-2);transition:.2s}
   .segrow{display:flex;align-items:center;gap:12px}
-  .seg.dragging{opacity:.88;border-color:var(--ember);position:relative;z-index:3}
-  .seg[data-live]{border-color:var(--ember);background:var(--panel)}
+  .seg.dragging{opacity:.88;border-color:var(--accent);position:relative;z-index:3}
+  .seg[data-live]{border-color:var(--accent);background:var(--panel)}
   .seg[data-past]{opacity:.42}
   .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
   .grip{appearance:none;-webkit-appearance:none;background:0;border:0;border-radius:6px;
@@ -96,8 +124,8 @@
   .grip:active{cursor:grabbing}
   .more{appearance:none;-webkit-appearance:none;background:0;border:0;border-radius:7px;
     color:var(--mute);width:26px;height:26px;flex:0 0 auto;font-size:15px;line-height:1;cursor:pointer}
-  .more:hover{background:#1B1F24;color:var(--bone)}
-  .more[data-set]{color:var(--ember)}
+  .more:hover{background:var(--hover);color:var(--bone)}
+  .more[data-set]{color:var(--accent)}
   .tray{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
     margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
   .tray[hidden]{display:none}
@@ -109,20 +137,20 @@
                      linear-gradient(135deg,var(--mute) 50%,transparent 50%);
     background-position:calc(100% - 13px) 50%, calc(100% - 8px) 50%;
     background-size:5px 5px,5px 5px;background-repeat:no-repeat}
-  .snd:focus{outline:0;border-color:var(--ember)}
+  .snd:focus{outline:0;border-color:var(--accent)}
   .tsp{flex:1}
   .tb{appearance:none;-webkit-appearance:none;background:0;border:1px solid var(--line);
     border-radius:8px;color:var(--mute);font:inherit;font-size:12px;padding:6px 10px;cursor:pointer}
   .tb:hover{color:var(--bone);border-color:var(--line-2)}
-  .tdel:hover{color:var(--ember);border-color:var(--ember)}
+  .tdel:hover{color:var(--danger);border-color:var(--danger)}
   .seg input[type=text]{flex:1;min-width:0;background:transparent;border:0;padding:6px 0;font-size:14px}
   .durbox{flex:0 0 auto;display:flex;align-items:center;gap:6px}
   .seg input.dur{flex:0 0 54px;width:54px;text-align:right;font-variant-numeric:tabular-nums;
     background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;
     font-size:13px;transition:border-color .14s}
   .seg input.dur.free{flex-basis:82px;width:82px}   /* 1:01:01 needs the room */
-  .seg input.dur:focus{outline:0;border-color:var(--ember)}
-  .seg input.dur.bad{border-color:var(--ember);color:var(--ember)}
+  .seg input.dur:focus{outline:0;border-color:var(--accent)}
+  .seg input.dur.bad{border-color:var(--danger);color:var(--danger)}
   .units{display:flex;gap:2px;padding:2px;background:var(--ink);
     border:1px solid var(--line);border-radius:9px;flex:0 0 auto}
   .u{appearance:none;-webkit-appearance:none;background:0;border:0;
@@ -131,11 +159,11 @@
     color:var(--mute);font:inherit;font-size:12px;line-height:1;
     width:26px;height:26px;padding:0;cursor:pointer;transition:.12s}
   .u:hover{color:var(--bone)}
-  .u[data-on]{background:var(--ember);color:#140A05;font-weight:600}
-  .u:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+  .u[data-on]{background:var(--accent);color:var(--on-accent);font-weight:600}
+  .u:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   .seg .unit{font-size:11px;color:var(--mute)}
   .kill{background:0;border:0;color:var(--mute);padding:6px;line-height:0;border-radius:7px}
-  .kill:hover{color:var(--ember)}
+  .kill:hover{color:var(--danger)}
   .listactions{display:flex;gap:8px;margin-top:10px}
   .add{background:0;border:1px dashed var(--line-2);color:var(--mute);
     flex:1;justify-content:center;padding:11px}
@@ -149,7 +177,7 @@
                      linear-gradient(135deg,var(--mute) 50%,transparent 50%);
     background-position:calc(100% - 16px) 50%, calc(100% - 11px) 50%;
     background-size:5px 5px, 5px 5px; background-repeat:no-repeat}
-  #soundsel:focus{outline:0;border-color:var(--ember)}
+  #soundsel:focus{outline:0;border-color:var(--accent)}
 
   .note{margin-top:18px;font-size:11.5px;color:var(--mute);line-height:1.7}
   kbd{background:var(--panel);border:1px solid var(--line);border-radius:5px;
@@ -158,7 +186,7 @@
   /* ---- presets ---- */
   .presets{margin-top:22px;padding-bottom:20px;border-bottom:1px solid var(--line);min-width:0}
   .phead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .linky{background:0;border:0;color:var(--ember);font-size:12.5px;padding:4px 0;letter-spacing:.02em}
+  .linky{background:0;border:0;color:var(--accent);font-size:12.5px;padding:4px 0;letter-spacing:.02em}
   .linky:hover{text-decoration:underline}
   .linky:disabled{color:var(--mute);text-decoration:none}
   .chips{display:flex;gap:8px;margin-top:12px;padding-bottom:4px;
@@ -170,18 +198,18 @@
   .chips::-webkit-scrollbar{display:none}
   .chips:empty{display:none}
   .chip{position:relative;flex:0 0 auto;display:flex;align-items:center;gap:9px;
-    background:#0F1114;border:1px solid var(--line);border-left:3px solid var(--line);
+    background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--line);
     border-radius:12px;padding:9px 11px 9px 12px;cursor:pointer;transition:.16s}
   .chip:hover{border-color:var(--line-2);background:var(--panel)}
-  .chip[data-on]{border-color:var(--ember);background:var(--panel)}
+  .chip[data-on]{border-color:var(--accent);background:var(--panel)}
   .chip b{font-weight:500;font-size:13px;white-space:nowrap;display:block;
     max-width:26ch;overflow:hidden;text-overflow:ellipsis}
   .chip i{font-style:normal;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;display:block;margin-top:1px}
   .chiptext{text-align:left}
   .chipacts{display:flex;gap:1px;margin-left:2px}
-  .chip .rm{background:0;border:0;color:#4C535B;padding:4px;line-height:0;font-size:12px;border-radius:6px}
-  .chip .rm:hover{color:var(--bone);background:#1B1F24}
-  .chip .rm[data-d]:hover{color:var(--ember)}
+  .chip .rm{background:0;border:0;color:var(--dim);padding:4px;line-height:0;font-size:12px;border-radius:6px}
+  .chip .rm:hover{color:var(--bone);background:var(--hover)}
+  .chip .rm[data-d]:hover{color:var(--danger)}
   .empty{margin:12px 0 0;font-size:11.5px;color:var(--mute);line-height:1.6}
   .empty[hidden]{display:none}
 
@@ -196,10 +224,10 @@
   #libcount{opacity:.6;font-variant-numeric:tabular-nums}
 
   /* ---- drawer ---- */
-  .scrim{position:fixed;inset:0;background:rgba(6,7,9,.66);backdrop-filter:blur(4px);z-index:8}
+  .scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(4px);z-index:8}
   .scrim[hidden]{display:none}
   .drawer{position:fixed;top:0;right:0;bottom:0;width:min(90vw,380px);z-index:9;
-    background:#0E1013;border-left:1px solid var(--line-2);
+    background:var(--deep);border-left:1px solid var(--line-2);
     padding:max(env(safe-area-inset-top),18px) 18px calc(env(safe-area-inset-bottom) + 14px);
     display:flex;flex-direction:column;
     animation:slide .22s cubic-bezier(.22,1,.36,1)}
@@ -215,30 +243,30 @@
   .libwrap{flex:1;overflow-y:auto;margin:6px -4px 0;padding:0 4px}
   .cat{display:flex;align-items:center;justify-content:space-between;
     margin:16px 6px 4px;font-size:10px;font-weight:600;letter-spacing:.22em;
-    text-transform:uppercase;color:#5A6169}
+    text-transform:uppercase;color:var(--cat)}
   .cat:first-child{margin-top:6px}
   .cat span{font-weight:400;letter-spacing:.04em;font-variant-numeric:tabular-nums;opacity:.7}
   .librow{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:12px;
     border:1px solid transparent;cursor:pointer;transition:.14s}
   .librow:hover{background:var(--panel);border-color:var(--line)}
-  .librow[data-on]{border-color:var(--ember);background:var(--panel)}
+  .librow[data-on]{border-color:var(--accent);background:var(--panel)}
   .librow .spine{width:3px;height:30px;border-radius:2px;flex:0 0 auto}
   .librow .txt{flex:1;min-width:0}
   .librow b{display:block;font-weight:500;font-size:14px;white-space:nowrap;
     overflow:hidden;text-overflow:ellipsis}
   .librow i{font-style:normal;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
-  .librow button{background:0;border:0;color:#4C535B;padding:6px;line-height:0;
+  .librow button{background:0;border:0;color:var(--dim);padding:6px;line-height:0;
     font-size:13px;border-radius:7px;flex:0 0 auto}
-  .librow button:hover{background:#1B1F24;color:var(--bone)}
-  .librow .star[data-fav]{color:var(--ember)}
-  .librow .del:hover{color:var(--ember)}
+  .librow button:hover{background:var(--hover);color:var(--bone)}
+  .librow .star[data-fav]{color:var(--accent)}
+  .librow .del:hover{color:var(--danger)}
   .librow .star:disabled{opacity:.28;cursor:not-allowed}
   .drawer footer{display:flex;gap:18px;padding-top:14px;margin-top:10px;
     border-top:1px solid var(--line)}
   .noresult{padding:26px 4px;font-size:12px;color:var(--mute);text-align:center;line-height:1.6}
 
   /* ---- sheet ---- */
-  .sheet{position:fixed;inset:0;background:rgba(6,7,9,.72);backdrop-filter:blur(6px);
+  .sheet{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(6px);
     display:grid;place-items:center;padding:20px;z-index:11}
   .sheet[hidden]{display:none}
   .card{width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line-2);
@@ -264,11 +292,11 @@
         <!-- outer chain ring: the whole session at a glance -->
         <g id="chain" fill="none" stroke-linecap="butt"></g>
         <!-- inner progress ring: the active segment -->
-        <circle cx="180" cy="180" r="126" fill="none" stroke="#1A1D22" stroke-width="10"/>
-        <circle id="prog" cx="180" cy="180" r="126" fill="none" stroke="var(--ember)"
+        <circle class="ringbase" cx="180" cy="180" r="126" fill="none" stroke-width="10"/>
+        <circle id="prog" cx="180" cy="180" r="126" fill="none" stroke="var(--accent)"
                 stroke-width="10" stroke-linecap="round" transform="rotate(-90 180 180)"/>
         <g id="hand" filter="url(#soft)">
-          <line x1="180" y1="180" x2="180" y2="46" stroke="var(--ember)" stroke-width="1.5" opacity=".5"/>
+          <line x1="180" y1="180" x2="180" y2="46" stroke="var(--accent)" stroke-width="1.5" opacity=".5"/>
         </g>
       </svg>
       <div class="face">
@@ -321,6 +349,11 @@
     </div>
 
     <div class="soundrow">
+      <label for="themesel">Theme</label>
+      <select id="themesel"></select>
+    </div>
+
+    <div class="soundrow">
       <label for="soundsel">Segment sound</label>
       <select id="soundsel"></select>
       <button class="linky" id="soundtest">Preview</button>
@@ -335,6 +368,8 @@
     </p>
   </section>
 </div>
+
+<div class="toast" id="toast" hidden></div>
 
 <!-- confirm dialog -->
 <div class="sheet" id="csheet" hidden>
@@ -380,7 +415,7 @@
 </div>
 
 <script>
-const HUES = ["#FF5A2B","#2F7D6E","#C9A227","#4A5FA5","#9A4C7E","#5B7B3A"];
+const HUES = ["#FF5A2B","#2F7D6E","#C9A227","#4A5FA5","#9A4C7E","#5B7B3A"];   // mutated in place by applyTheme
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,"0");
 
@@ -558,6 +593,29 @@ const SOUNDS = {
   silent: { label:"Silent", notes:[],                                       end:[] },
 };
 const SOUND_ORDER = ["chime","bell","blip","wood","rise","gong","silent"];
+
+/* ---------- themes ----------
+   CSS custom properties carry every color; the JS side only swaps the HUES
+   the dial and rows paint with, plus the browser chrome color. */
+const THEMES = {
+  ember: { label:"Ember", bar:"#0B0C0E",
+           hues:["#FF5A2B","#2F7D6E","#C9A227","#4A5FA5","#9A4C7E","#5B7B3A"] },
+  pop:   { label:"Pop",   bar:"#F7F3EC",
+           hues:["#7C5CFF","#FF4D9D","#FF8A3D","#38BDF8","#A3E635","#FFC53D"] },
+};
+let theme = "ember";
+const loadTheme = () => { try{ const t = localStorage.getItem("timgo.theme");
+  if(t && THEMES[t]) theme = t; }catch{} };
+const saveTheme = () => { try{ localStorage.setItem("timgo.theme", theme) }catch{} };
+
+function applyTheme(name){
+  theme = THEMES[name] ? name : "ember";
+  document.documentElement.setAttribute("data-theme", theme);
+  HUES.splice(0, HUES.length, ...THEMES[theme].hues);
+  try{ document.querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", THEMES[theme].bar); }catch{}
+  buildList(); drawPresets(); render();
+}
 let sound = "chime";
 /* a segment may carry its own voice; fall back to the app-wide choice */
 const sndOf = i => (segs[i]?.snd && SOUNDS[segs[i].snd]) ? segs[i].snd : sound;
@@ -577,6 +635,7 @@ function voice(t, freq, dur, type="sine", ring=false, slideTo=null){
   g.gain.exponentialRampToValueAtTime(.0001, t + dur);
   o.connect(g).connect(ac.destination);
   o.start(t); o.stop(t + dur + .02);
+  return { o, g };
 }
 
 /* times=1 → segment handoff. times=3 → session complete.
@@ -613,6 +672,60 @@ function tickSound(){
 /* play the current voice once, for the picker */
 const preview = () => { unlockAudio(); beep(1); };
 
+/* ---------- background beep scheduler ----------
+   Hidden pages get their JS timers throttled, so beeps fired from setInterval
+   arrive late — but the AUDIO clock is never throttled. The moment the app is
+   hidden mid-session, every remaining boundary is pre-scheduled on the audio
+   timeline (sample-accurate, immune to throttling) and a sub-audible 40 Hz
+   keepalive holds the pipeline open so the OS doesn't sleep it. On return the
+   schedule is cancelled and JS resumes as the beep authority; while armed,
+   sync()'s catch-up replay stays silent so nothing ever sounds twice. */
+let sched = [], keep = null, schedArmed = false;
+
+function armSchedule(){
+  if(!running || !ac || ac.state !== "running") return;
+  disarmSchedule();
+  try{
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(40, ac.currentTime);   // sub-audible
+    g.gain.setValueAtTime(0.001, ac.currentTime);
+    o.connect(g).connect(ac.destination);
+    o.start();
+    keep = { o, g };
+  }catch{}
+  const now = Date.now();
+  let tEpoch = endsAt;
+  for(let i = active + 1; i <= segs.length; i++){
+    const dt = (tEpoch - now) / 1000;
+    if(dt > 0){
+      const at = ac.currentTime + dt;
+      try{
+        if(i < segs.length){                            // handoff into segment i
+          const n = SOUNDS[sndOf(i)].notes[0];
+          if(n) sched.push(voice(at, n[0], n[1], n[2], n[3], n[4]));
+        }else{                                          // session-complete flourish
+          const S = SOUNDS[sound] || SOUNDS.chime;
+          const base = S.notes[0] || [880,.3,"sine"];
+          S.end.forEach((nn, j) => {
+            const gap = base[1] > .5 ? nn[1]*0.55 : 0.30;
+            sched.push(voice(at + j*gap, nn[0], nn[1], base[2], base[3], nn[4] ?? null));
+          });
+        }
+      }catch{}
+    }
+    if(i < segs.length) tEpoch += secsOf(i) * 1000;
+  }
+  schedArmed = true;
+}
+
+function disarmSchedule(){
+  for(const n of sched){ try{ n.o.stop(0); n.g.disconnect(); }catch{} }
+  sched = [];
+  if(keep){ try{ keep.o.stop(0); keep.g.disconnect(); }catch{} keep = null; }
+  schedArmed = false;
+}
+
 /* An AudioContext can only start from a user gesture. Call this on Start. */
 function unlockAudio(){
   try{
@@ -642,7 +755,13 @@ async function wake(on){
   }catch{}
 }
 document.addEventListener("visibilitychange", () => {
-  if(document.visibilityState === "visible" && running){ wake(true); sync(); render(); }
+  if(document.visibilityState === "visible"){
+    if(running) sync();          // replay while still armed — silently
+    disarmSchedule();
+    if(running){ wake(true); render(); }
+  }else if(running){
+    armSchedule();
+  }
 });
 
 /* ---------- static dial furniture ---------- */
@@ -651,9 +770,9 @@ document.addEventListener("visibilitychange", () => {
   for(let i=0;i<60;i++){
     const a = (i/60)*2*Math.PI - Math.PI/2, big = i%5===0;
     const r1 = big ? 141 : 145, r2 = 150;
-    g += `<line x1="${180+Math.cos(a)*r1}" y1="${180+Math.sin(a)*r1}"
+    g += `<line class="${big?"tkb":"tk"}" x1="${180+Math.cos(a)*r1}" y1="${180+Math.sin(a)*r1}"
                 x2="${180+Math.cos(a)*r2}" y2="${180+Math.sin(a)*r2}"
-                stroke="${big?"#3A4048":"#23272C"}" stroke-width="${big?1.6:1}"/>`;
+                stroke-width="${big?1.6:1}"/>`;
   }
   $("ticks").innerHTML = g;
 })();
@@ -832,6 +951,7 @@ function drawPresets(){
         <i>${fmtDur(sumOf(p))} · ${p.segs.length} seg</i>
       </span>
       <span class="chipacts">
+        <button class="rm" data-s="${p.id}" aria-label="Share ${esc(p.name)}" title="Share link">⤴</button>
         <button class="rm" data-r="${p.id}" aria-label="Rename ${esc(p.name)}" title="Rename">✎</button>
         <button class="rm" data-d="${p.id}" aria-label="Delete ${esc(p.name)}" title="Delete">✕</button>
       </span>
@@ -872,6 +992,7 @@ function drawLibrary(){
       <button class="star" data-f="${p.id}" ${p.fav?"data-fav":""} ${locked?"disabled":""}
         title="${p.fav ? "Unpin" : locked ? `Only ${MAX_FAV} pinned at a time` : "Pin to main screen"}"
         aria-label="${p.fav?"Unpin":"Pin"} ${esc(p.name)}">${p.fav?"★":"☆"}</button>
+      <button class="shr" data-s="${p.id}" title="Share link" aria-label="Share ${esc(p.name)}">⤴</button>
       <button class="rm" data-r="${p.id}" title="Rename" aria-label="Rename ${esc(p.name)}">✎</button>
       <button class="del" data-d="${p.id}" title="Delete" aria-label="Delete ${esc(p.name)}">✕</button>
     </div>`;
@@ -908,6 +1029,8 @@ $("scrim").onclick = closeLib;
 $("libsearch").addEventListener("input", drawLibrary);
 
 $("libwrap").addEventListener("click", e => {
+  const shr = e.target.closest("[data-s]");
+  if(shr){ e.stopPropagation(); sharePreset(shr.dataset.s); return; }
   const star = e.target.closest("[data-f]");
   if(star){
     e.stopPropagation();
@@ -960,21 +1083,9 @@ $("importfile").addEventListener("change", async e => {
 
     let added = 0;
     incoming.forEach(p => {
-      if(!p?.name || !Array.isArray(p.segs) || !p.segs.length) return;
-      const segsClean = p.segs.map(s => ({
-        name: String(s?.name || "Branch").slice(0,40),
-        sec: Math.min(Math.max(+s?.sec || (+s?.min || 1)*60, MIN_SEC), MAX_SEC),
-        ...(s?.snd && SOUNDS[s.snd] ? {snd: s.snd} : {}),
-      }));   // cap at 24h per segment
-      const clean = {
-        id: newId(),
-        name: String(p.name).slice(0,40),
-        hue: ((+p.hue || 0) % 6 + 6) % 6,
-        cat: CAT_ORDER.includes(p.cat) ? p.cat : undefined,   // no arbitrary headings
-        fav: false,
-        segs: segsClean
-      };
-      // same name → keep both, disambiguate
+      const clean = sanitizePreset(p);
+      if(!clean) return;
+      added++;
       if(presets.some(x => x.name.toLowerCase() === clean.name.toLowerCase()))
         clean.name = `${clean.name} (imported)`.slice(0,40);
       presets.push(clean);
@@ -983,7 +1094,7 @@ $("importfile").addEventListener("change", async e => {
     tickSound();
   }catch{
     $("libwrap").insertAdjacentHTML("afterbegin",
-      `<p class="noresult" style="color:var(--ember)">That file isn't a Timgo export.</p>`);
+      `<p class="noresult" style="color:var(--accent)">That file isn't a Timgo export.</p>`);
   }
   e.target.value = "";
 });
@@ -1102,6 +1213,8 @@ function applyPreset(id){
 }
 
 $("chips").addEventListener("click", e => {
+  const shr = e.target.closest("[data-s]");
+  if(shr){ e.stopPropagation(); sharePreset(shr.dataset.s); return; }
   const ren = e.target.closest("[data-r]");
   if(ren){ e.stopPropagation(); openSheet("rename", ren.dataset.r); return; }
 
@@ -1121,6 +1234,102 @@ $("chips").addEventListener("keydown", e => {
   if(chip && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); applyPreset(chip.dataset.p); }
 });
 
+/* One gate for everything that enters the library from outside: imported files
+   and shared links both pass through here. Rejects junk, clamps everything. */
+function sanitizePreset(p){
+  if(!p?.name || !Array.isArray(p.segs) || !p.segs.length) return null;
+  const segs = p.segs.slice(0, MAX_SEGS).map(s => ({
+    name: String(s?.name || "Branch").slice(0,40),
+    sec: Math.min(Math.max(+s?.sec || (+s?.min || 1)*60, MIN_SEC), MAX_SEC),
+    ...(s?.snd && SOUNDS[s.snd] ? {snd: s.snd} : {}),
+  }));
+  return {
+    id: newId(),
+    name: String(p.name).slice(0,40),
+    hue: ((+p.hue || 0) % 6 + 6) % 6,
+    cat: CAT_ORDER.includes(p.cat) ? p.cat : undefined,
+    fav: false,
+    segs,
+  };
+}
+
+/* ---------- shareable preset links ----------
+   A preset is encoded into the URL FRAGMENT (#p=…): fragments never reach the
+   server, so shared links open from the service-worker cache even offline, and
+   refreshes never re-trigger the prompt because we clear the hash after use. */
+const b64u = {
+  enc(bytes){ let s=""; for(const b of bytes) s += String.fromCharCode(b);
+    return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); },
+  dec(str){ str = str.replace(/-/g,"+").replace(/_/g,"/");
+    while(str.length % 4) str += "=";
+    const s = atob(str);
+    return Uint8Array.from(s, c => c.charCodeAt(0)); },
+};
+
+function encodePreset(p){
+  const mini = [1, p.name, p.hue ?? 0, p.cat ?? "",
+                p.segs.map(s => [s.name, s.sec, s.snd ?? ""])];
+  return b64u.enc(new TextEncoder().encode(JSON.stringify(mini)));
+}
+function decodeShared(str){
+  try{
+    const mini = JSON.parse(new TextDecoder().decode(b64u.dec(str)));
+    if(!Array.isArray(mini) || mini[0] !== 1) return null;   // version gate
+    const [, name, hue, cat, segs] = mini;
+    if(!Array.isArray(segs)) return null;
+    return sanitizePreset({ name, hue, cat: cat || undefined,
+      segs: segs.map(([n, sec, snd]) => ({ name:n, sec, snd: snd || undefined })) });
+  }catch{ return null; }
+}
+
+function shareUrl(p){
+  const base = (location.origin + location.pathname).replace(/index\.html$/,"");
+  return `${base}#p=${encodePreset(p)}`;
+}
+
+function sharePreset(id){
+  const p = presets.find(x => x.id === id);
+  if(!p) return;
+  const url = shareUrl(p);
+  const text = `${p.name} — ${fmtDur(sumOf(p))} on Timgo`;
+  if(navigator.share){ navigator.share({ title:p.name, text, url }).catch(()=>{}); return; }
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(url)
+      .then(()=>showToast("Link copied"))
+      .catch(()=>askConfirm(url, "Close", ()=>{}));
+    return;
+  }
+  askConfirm(url, "Close", ()=>{});
+}
+
+/* incoming: runs at boot and whenever a share link lands in an open app */
+function receiveShared(){
+  const m = location.hash.match(/^#p=(.+)/);
+  if(!m) return;
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch{}
+  // chat apps love appending punctuation to pasted links; strip anything
+  // that can't be part of the payload before giving up on it
+  const p = decodeShared(m[1].replace(/[^A-Za-z0-9_-]/g, ""));
+  if(!p){ showToast("That share link didn't parse"); return; }
+  askConfirm(`Add “${p.name}” to your presets? ${fmtDur(sumOf(p))} · ${p.segs.length} segments.`,
+             "Add preset", () => {
+    if(presets.some(x => x.name.toLowerCase() === p.name.toLowerCase()))
+      p.name = `${p.name} (shared)`.slice(0,40);
+    presets.push(p);
+    savePresets(); drawPresets();
+    if(!started && !done) applyPreset(p.id);   // fresh app: open it loaded
+    else showToast("Saved to your library");   // mid-session: never disturb the clock
+  });
+}
+
+let toastTimer = null;
+function showToast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.hidden = true; }, 2400);
+}
+
 /* editing the timer detaches it from the loaded preset */
 function touched(){ if(loaded !== null){ loaded = null; drawPresets(); } }
 
@@ -1130,6 +1339,7 @@ function touched(){ if(loaded !== null){ loaded = null; drawPresets(); } }
    where we really are and replay any segment boundaries we slept through. */
 function stop(){
   clearInterval(tick); tick = null; running = false; endsAt = null; wake(false);
+  disarmSchedule();
 }
 
 /* advance one segment. `silent` suppresses the beep when catching up on
@@ -1158,7 +1368,7 @@ function sync(){
   let crossed = 0;
   while(remain <= 0 && running && !done){
     crossed++;
-    if(!advance(crossed > 1)) return;    // beep once, not once per skipped segment
+    if(!advance(crossed > 1 || schedArmed)) return;   // scheduler already sounded these
     remain += secsOf(active);
     endsAt = Date.now() + remain * 1000;
   }
@@ -1454,6 +1664,12 @@ addEventListener("keydown", e => {
   if(e.key.toLowerCase()==="r") reset();
 });
 
+/* ---------- theme picker ---------- */
+loadTheme();
+$("themesel").innerHTML = Object.keys(THEMES)
+  .map(k => `<option value="${k}"${k===theme?" selected":""}>${THEMES[k].label}</option>`).join("");
+$("themesel").addEventListener("change", e => { applyTheme(e.target.value); saveTheme(); });
+
 /* ---------- sound picker ---------- */
 loadSound();
 $("soundsel").innerHTML = SOUND_ORDER
@@ -1466,9 +1682,10 @@ $("soundsel").addEventListener("change", e => {
 $("soundtest").onclick = preview;
 
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
-buildList();
-drawPresets();
+applyTheme(theme);   // sets data-theme, HUES, and does the first buildList/drawPresets
 reset();
+receiveShared();
+addEventListener("hashchange", receiveShared);
 </script>
 </body>
 </html>
